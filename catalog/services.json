@@ -1,0 +1,2047 @@
+{
+  "schema_version": 1,
+  "services": [
+    {
+      "id": "postgresql",
+      "title": "PostgreSQL",
+      "description": "Core relational database with local generated administrator credentials.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        5432
+      ],
+      "secret_keys": [
+        "POSTGRES_USER",
+        "POSTGRES_DB",
+        "POSTGRES_PASSWORD"
+      ],
+      "generated_secrets": [
+        "POSTGRES_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "POSTGRES_USER": "cortex",
+        "POSTGRES_DB": "cortex"
+      },
+      "endpoint": "tcp://127.0.0.1:5432",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/postgresql.json",
+      "verify": {
+        "type": "tcp",
+        "port": 5432
+      },
+      "dashboard": {
+        "health_type": "tcp",
+        "health_url": "tcp://127.0.0.1:5432",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": null,
+        "container_names": [
+          "cortex-postgresql"
+        ],
+        "category": "infrastructure",
+        "env_file": "postgresql.env"
+      }
+    },
+    {
+      "id": "redis",
+      "title": "Redis",
+      "description": "Authenticated persistent cache; no public listener.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        6379
+      ],
+      "secret_keys": [
+        "REDIS_PASSWORD"
+      ],
+      "generated_secrets": [
+        "REDIS_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": "tcp://127.0.0.1:6379",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/redis.json",
+      "verify": {
+        "type": "tcp",
+        "port": 6379
+      },
+      "dashboard": {
+        "health_type": "tcp",
+        "health_url": "tcp://127.0.0.1:6379",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": null,
+        "container_names": [
+          "cortex-redis"
+        ],
+        "category": "infrastructure",
+        "env_file": "redis.env"
+      }
+    },
+    {
+      "id": "mongodb",
+      "title": "MongoDB",
+      "description": "Authenticated document database.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        27017
+      ],
+      "secret_keys": [
+        "MONGO_INITDB_ROOT_USERNAME",
+        "MONGO_INITDB_ROOT_PASSWORD"
+      ],
+      "generated_secrets": [
+        "MONGO_INITDB_ROOT_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "MONGO_INITDB_ROOT_USERNAME": "cortex"
+      },
+      "endpoint": "tcp://127.0.0.1:27017",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/mongodb.json",
+      "verify": {
+        "type": "tcp",
+        "port": 27017
+      },
+      "dashboard": {
+        "health_type": "tcp",
+        "health_url": "tcp://127.0.0.1:27017",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": null,
+        "container_names": [
+          "cortex-mongodb"
+        ],
+        "category": "infrastructure",
+        "env_file": "mongodb.env"
+      }
+    },
+    {
+      "id": "mysql",
+      "title": "MySQL",
+      "description": "Authenticated relational database.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        3306
+      ],
+      "secret_keys": [
+        "MYSQL_ROOT_PASSWORD",
+        "MYSQL_ROOT_HOST"
+      ],
+      "generated_secrets": [
+        "MYSQL_ROOT_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "MYSQL_ROOT_HOST": "%"
+      },
+      "endpoint": "tcp://127.0.0.1:3306",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/mysql.json",
+      "verify": {
+        "type": "tcp",
+        "port": 3306
+      },
+      "dashboard": {
+        "health_type": "tcp",
+        "health_url": "tcp://127.0.0.1:3306",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": null,
+        "container_names": [
+          "cortex-mysql"
+        ],
+        "category": "infrastructure",
+        "env_file": "mysql.env"
+      }
+    },
+    {
+      "id": "dashboard",
+      "title": "Cortex dashboard",
+      "description": "Authenticated management interface and terminal; installed by base installer.",
+      "depends_on": [
+        "postgresql"
+      ],
+      "conflicts": [],
+      "ports": [
+        3080,
+        3081,
+        3082
+      ],
+      "secret_keys": [
+        "DB_HOST",
+        "DB_PORT",
+        "DB_NAME",
+        "DB_USER",
+        "DB_PASSWORD",
+        "CORTEX_MASTER_KEY",
+        "CORTEX_ROOT",
+        "CORTEX_SECRETS_DIR",
+        "CORTEX_DATA_ROOT",
+        "CORTEX_PUBLIC_URL",
+        "CORTEX_ADMIN_USER",
+        "CORTEX_HARNESS_HOME",
+        "CORTEX_BACKUP_ROOT",
+        "HOST",
+        "PORT",
+        "NODE_ENV"
+      ],
+      "secret_owner": "installer/provision.py",
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": "http://127.0.0.1:3080",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "core",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:3080/"
+      },
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:3080/",
+        "open_url": "http://127.0.0.1:3080",
+        "has_webui": true,
+        "unit_name": "cortex-dashboard.service",
+        "container_names": [],
+        "category": "infrastructure",
+        "env_file": "dashboard.env"
+      }
+    },
+    {
+      "id": "caddy",
+      "title": "Caddy",
+      "description": "Private ingress; no unauthenticated public forwarding.",
+      "depends_on": [
+        "dashboard"
+      ],
+      "conflicts": [],
+      "ports": [
+        8080
+      ],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": "http://127.0.0.1:8080",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "script",
+      "recipe": "scripts/network/caddy.py",
+      "verify": {
+        "type": "tcp",
+        "port": 8080
+      },
+      "dashboard": {
+        "health_type": "tcp",
+        "health_url": "tcp://127.0.0.1:8080",
+        "open_url": "http://127.0.0.1:8080",
+        "has_webui": true,
+        "unit_name": "caddy.service",
+        "container_names": [],
+        "category": "infrastructure",
+        "env_file": "caddy.env"
+      }
+    },
+    {
+      "id": "tailscale",
+      "title": "Tailscale",
+      "description": "Private ingress; no unauthenticated public forwarding.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [],
+      "secret_keys": [
+        "TAILSCALE_AUTHKEY"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": null,
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "script",
+      "recipe": "scripts/network/tailscale.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "tailscale",
+          "status",
+          "--json"
+        ]
+      },
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": "tailscaled.service",
+        "container_names": [],
+        "category": "infrastructure",
+        "env_file": "tailscale.env"
+      }
+    },
+    {
+      "id": "ollama",
+      "title": "Ollama",
+      "description": "Local CPU inference; models are explicitly operator-selected.",
+      "depends_on": [],
+      "ports": [
+        11434
+      ],
+      "secret_keys": [
+        "OLLAMA_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {
+        "OLLAMA_IMAGE": "ollama/ollama@sha256:684d8674b4315fa18f4f0e973a118ec2652ed96f67563277839985175858e0ba"
+      },
+      "endpoint": "http://localhost:11434",
+      "resources": {
+        "memory_mb": 8192,
+        "disk_gb": 30,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/ollama.json",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:11434/api/tags"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:11434/api/tags",
+        "open_url": "http://localhost:11434",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-ollama"
+        ],
+        "category": "applications",
+        "env_file": "ollama.env"
+      }
+    },
+    {
+      "id": "whisper",
+      "title": "Whisper ASR",
+      "description": "CPU speech recognition with persistent model cache.",
+      "depends_on": [],
+      "ports": [
+        9000
+      ],
+      "secret_keys": [
+        "WHISPER_IMAGE",
+        "ASR_ENGINE",
+        "ASR_MODEL",
+        "ASR_DEVICE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {
+        "ASR_ENGINE": "openai_whisper",
+        "ASR_MODEL": "base",
+        "ASR_DEVICE": "cpu",
+        "WHISPER_IMAGE": "onerahmet/openai-whisper-asr-webservice@sha256:0616c3d5fc6924e9d59aa8a7a3a944fbe8f3a5d701e5fc1fa2ce5b933dfecb73"
+      },
+      "endpoint": "http://localhost:9000",
+      "resources": {
+        "memory_mb": 4096,
+        "disk_gb": 10,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/whisper.json",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9000/openapi.json"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:9000/openapi.json",
+        "open_url": "http://localhost:9000",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-whisper"
+        ],
+        "category": "applications",
+        "env_file": "whisper.env"
+      }
+    },
+    {
+      "id": "hindsight",
+      "title": "Hindsight",
+      "description": "Authenticated identity-scoped memory broker with private Hindsight backend and embedded PostgreSQL.",
+      "depends_on": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:8888/health",
+        "open_url": "http://127.0.0.1:9999",
+        "has_webui": true,
+        "unit_name": "cortex-memory-broker.service",
+        "container_names": [
+          "cortex-hindsight",
+          "cortex-hindsight-ui-guard"
+        ],
+        "category": "applications",
+        "env_file": "hindsight.env"
+      },
+      "ports": [
+        8888,
+        19888,
+        9999
+      ],
+      "secret_keys": [
+        "HINDSIGHT_UI_GUARD_IMAGE",
+        "HINDSIGHT_CP_HOSTNAME",
+        "HINDSIGHT_CP_PORT",
+        "HINDSIGHT_CP_DATAPLANE_API_KEY",
+        "HINDSIGHT_CP_DATAPLANE_API_URL",
+        "CORTEX_MEMORY_ADMIN_KEY",
+        "HINDSIGHT_API_TENANT_EXTENSION",
+        "HINDSIGHT_API_TENANT_MCP_AUTH_DISABLED",
+        "HINDSIGHT_ENABLE_CP",
+        "HINDSIGHT_API_TENANT_API_KEY",
+        "HINDSIGHT_IMAGE",
+        "HINDSIGHT_API_LLM_API_KEY",
+        "HINDSIGHT_API_LLM_MODEL",
+        "HINDSIGHT_API_LLM_BASE_URL",
+        "HINDSIGHT_API_LLM_PROVIDER"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [
+        "HINDSIGHT_API_LLM_API_KEY",
+        "HINDSIGHT_API_LLM_MODEL",
+        "HINDSIGHT_API_LLM_BASE_URL"
+      ],
+      "secret_defaults": {
+        "HINDSIGHT_UI_GUARD_IMAGE": "nginx@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c",
+        "HINDSIGHT_API_LLM_PROVIDER": "openai",
+        "HINDSIGHT_IMAGE": "ghcr.io/vectorize-io/hindsight@sha256:3edcb6165cefdeaa6721dd0fce43cfd13b7a9c346ce0d2c5f4b4bf7bc3c8ac0b"
+      },
+      "endpoint": "http://localhost:8888",
+      "resources": {
+        "memory_mb": 8192,
+        "disk_gb": 30,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/hindsight.json",
+      "after_apply": "stacks/apps/hindsight-after-apply.py",
+      "companion_script": "scripts/memory/memoryctl.py",
+      "recreate_on_apply": true,
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/memory/memoryctl.py",
+          "verify",
+          "--manifest",
+          "@MANIFEST@"
+        ]
+      },
+      "prepare": "stacks/apps/prepare-storage.py",
+      "conflicts": []
+    },
+    {
+      "id": "durindoor",
+      "title": "DurinDoor",
+      "description": "Inference gateway with persistent SQLite and operator-managed providers.",
+      "depends_on": [],
+      "ports": [
+        20128
+      ],
+      "secret_keys": [
+        "DURINDOOR_IMAGE",
+        "JWT_SECRET",
+        "INITIAL_PASSWORD",
+        "API_KEY_SECRET",
+        "MACHINE_ID_SALT",
+        "BASE_URL",
+        "NEXT_PUBLIC_BASE_URL",
+        "AUTH_COOKIE_SECURE",
+        "ENABLE_REQUEST_LOGS"
+      ],
+      "generated_secrets": [
+        "JWT_SECRET",
+        "INITIAL_PASSWORD",
+        "API_KEY_SECRET",
+        "MACHINE_ID_SALT"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "BASE_URL": "http://localhost:20128",
+        "NEXT_PUBLIC_BASE_URL": "http://localhost:20128",
+        "AUTH_COOKIE_SECURE": "false",
+        "ENABLE_REQUEST_LOGS": "false",
+        "DURINDOOR_IMAGE": "ghcr.io/bloodf/durindoor@sha256:3a0d859d1129028d12b1bd18c5b68a64faf457fba6a349fc5b59f0beb01a9ee3"
+      },
+      "endpoint": "http://localhost:20128",
+      "resources": {
+        "memory_mb": 2048,
+        "disk_gb": 10,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/durindoor.json",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:20128/"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:20128/",
+        "open_url": "http://localhost:20128",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-durindoor"
+        ],
+        "category": "applications",
+        "env_file": "durindoor.env"
+      }
+    },
+    {
+      "id": "jellyfin",
+      "title": "Jellyfin",
+      "description": "Media server with local read-only media directory and CPU transcoding.",
+      "depends_on": [],
+      "ports": [
+        8096
+      ],
+      "secret_keys": [
+        "JELLYFIN_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {
+        "JELLYFIN_IMAGE": "jellyfin/jellyfin@sha256:baba630419915985442f315f08b0cf46d9f4c8a0cc4bd38e94a6d35751dd5ef5"
+      },
+      "endpoint": "http://localhost:8096",
+      "resources": {
+        "memory_mb": 2048,
+        "disk_gb": 20,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/jellyfin.json",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8096/health",
+        "body_pattern": "^Healthy$"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:8096/health",
+        "open_url": "http://localhost:8096",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-jellyfin"
+        ],
+        "category": "applications",
+        "env_file": "jellyfin.env"
+      }
+    },
+    {
+      "id": "home-assistant",
+      "title": "Home Assistant",
+      "description": "Home automation without privileged host networking; manually configure device integrations.",
+      "depends_on": [],
+      "ports": [
+        8123
+      ],
+      "secret_keys": [
+        "HOME_ASSISTANT_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {
+        "HOME_ASSISTANT_IMAGE": "ghcr.io/home-assistant/home-assistant@sha256:a1bc133af84ee6505fe2c266d9805b7c75b780dfdc188edfee3b11e8f3cd8efe"
+      },
+      "endpoint": "http://localhost:8123",
+      "resources": {
+        "memory_mb": 2048,
+        "disk_gb": 10,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/home-assistant.json",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8123/"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:8123/",
+        "open_url": "http://localhost:8123",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-home-assistant"
+        ],
+        "category": "applications",
+        "env_file": "home-assistant.env"
+      }
+    },
+    {
+      "id": "dockhand",
+      "title": "Dockhand",
+      "description": "Docker administration UI with explicitly host-root-equivalent socket access.",
+      "depends_on": [],
+      "ports": [
+        3420
+      ],
+      "secret_keys": [
+        "DOCKHAND_PROXY_IMAGE",
+        "DOCKHAND_PROXY_PASSWORD",
+        "DOCKHAND_IMAGE",
+        "DOCKER_GID"
+      ],
+      "generated_secrets": [
+        "DOCKHAND_PROXY_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "DOCKHAND_PROXY_IMAGE": "nginx@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c",
+        "DOCKHAND_IMAGE": "fnsys/dockhand@sha256:63ffc7dd086f5d10506ccf488bcb30ce40401975212fcc1bed9ec891243c9fb4"
+      },
+      "endpoint": "http://localhost:3420",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/dockhand.json",
+      "prepare": "stacks/apps/dockhand-auth.py",
+      "recreate_on_apply": true,
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/stacks/apps/dockhand-auth.py",
+          "verify"
+        ]
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "http://localhost:3420",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-dockhand",
+          "cortex-dockhand-proxy"
+        ],
+        "category": "applications",
+        "env_file": "dockhand.env"
+      }
+    },
+    {
+      "id": "firecrawl",
+      "title": "Firecrawl",
+      "description": "Web scraping API with dedicated browser, queue, Redis and NUQ database.",
+      "depends_on": [],
+      "ports": [
+        3002
+      ],
+      "secret_keys": [
+        "FIRECRAWL_IMAGE",
+        "FIRECRAWL_PLAYWRIGHT_IMAGE",
+        "FIRECRAWL_POSTGRES_IMAGE",
+        "FIRECRAWL_REDIS_IMAGE",
+        "FIRECRAWL_RABBITMQ_IMAGE",
+        "POSTGRES_PASSWORD",
+        "RABBITMQ_DEFAULT_PASS",
+        "BULL_AUTH_KEY"
+      ],
+      "generated_secrets": [
+        "POSTGRES_PASSWORD",
+        "RABBITMQ_DEFAULT_PASS",
+        "BULL_AUTH_KEY"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "FIRECRAWL_IMAGE": "ghcr.io/firecrawl/firecrawl@sha256:780592f58b4a99beee4424f1acadacf34bcefb02d5893f4bd1a9cb2554bf0a19",
+        "FIRECRAWL_PLAYWRIGHT_IMAGE": "ghcr.io/firecrawl/playwright-service@sha256:df1a393ce8bfc3801570a826a9b0dcc400ae48789adb4a0ad9d6cbf0229b059b",
+        "FIRECRAWL_POSTGRES_IMAGE": "ghcr.io/firecrawl/nuq-postgres@sha256:aed86f62858f29bd971abddcdeb301c12888098d2cf5d33c1ba42b053bc460f6",
+        "FIRECRAWL_REDIS_IMAGE": "redis@sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576",
+        "FIRECRAWL_RABBITMQ_IMAGE": "rabbitmq@sha256:e582c0bc7766f3342496d8485efb5a1df782b5ce3886ad017e2eaae442311f69"
+      },
+      "endpoint": "http://localhost:3002",
+      "resources": {
+        "memory_mb": 14336,
+        "disk_gb": 30,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/firecrawl.json",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:3002/"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:3002/",
+        "open_url": "http://localhost:3002",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-firecrawl",
+          "cortex-firecrawl-postgres",
+          "cortex-firecrawl-redis",
+          "cortex-firecrawl-playwright",
+          "cortex-firecrawl-rabbitmq"
+        ],
+        "category": "applications",
+        "env_file": "firecrawl.env"
+      }
+    },
+    {
+      "id": "postiz",
+      "title": "Postiz",
+      "description": "Social publishing application with PostgreSQL, Redis and durable Temporal workflows.",
+      "depends_on": [],
+      "ports": [
+        4007
+      ],
+      "secret_keys": [
+        "POSTIZ_IMAGE",
+        "POSTIZ_POSTGRES_IMAGE",
+        "POSTIZ_REDIS_IMAGE",
+        "POSTIZ_TEMPORAL_IMAGE",
+        "POSTIZ_TEMPORAL_POSTGRES_IMAGE",
+        "POSTIZ_ELASTICSEARCH_IMAGE",
+        "JWT_SECRET",
+        "POSTGRES_PASSWORD",
+        "TEMPORAL_POSTGRES_PASSWORD",
+        "MAIN_URL",
+        "FRONTEND_URL",
+        "NEXT_PUBLIC_BACKEND_URL",
+        "DISABLE_REGISTRATION"
+      ],
+      "generated_secrets": [
+        "JWT_SECRET",
+        "POSTGRES_PASSWORD",
+        "TEMPORAL_POSTGRES_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "MAIN_URL": "http://localhost:4007",
+        "FRONTEND_URL": "http://localhost:4007",
+        "NEXT_PUBLIC_BACKEND_URL": "http://localhost:4007/api",
+        "DISABLE_REGISTRATION": "false",
+        "POSTIZ_IMAGE": "ghcr.io/gitroomhq/postiz-app@sha256:785f97312f66a347fb96cdccc4ded5a33ced69a672c89a9adc8054e7d6a21dc5",
+        "POSTIZ_POSTGRES_IMAGE": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+        "POSTIZ_REDIS_IMAGE": "redis@sha256:74566c6910d13ae61e7ce73ebd3127438a1fe805b309b097c323142719ec8a5b",
+        "POSTIZ_TEMPORAL_IMAGE": "temporalio/auto-setup@sha256:607d68caa111338d754771efb876c92dfcdae06d056e4530bb31cd0f37406e6a",
+        "POSTIZ_TEMPORAL_POSTGRES_IMAGE": "postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94",
+        "POSTIZ_ELASTICSEARCH_IMAGE": "elasticsearch@sha256:9a6443f55243f6acbfeb4a112d15eb3b9aac74bf25e0e39fa19b3ddd3a6879d0"
+      },
+      "endpoint": "http://localhost:4007",
+      "resources": {
+        "memory_mb": 6144,
+        "disk_gb": 30,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/postiz.json",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:4007/api/public/v1/integrations",
+        "statuses": [
+          401
+        ]
+      },
+      "prepare": "stacks/apps/prepare-storage.py",
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:4007/api/public/v1/integrations",
+        "open_url": "http://localhost:4007",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-postiz",
+          "cortex-postiz-postgres",
+          "cortex-postiz-redis",
+          "cortex-postiz-temporal-postgres",
+          "cortex-postiz-elasticsearch",
+          "cortex-postiz-temporal"
+        ],
+        "category": "applications",
+        "env_file": "postiz.env"
+      }
+    },
+    {
+      "id": "langfuse",
+      "title": "Langfuse",
+      "description": "LLM observability with web, worker, PostgreSQL, ClickHouse, Redis and object storage.",
+      "depends_on": [],
+      "ports": [
+        3035,
+        9095
+      ],
+      "secret_keys": [
+        "LANGFUSE_IMAGE",
+        "LANGFUSE_WORKER_IMAGE",
+        "LANGFUSE_POSTGRES_IMAGE",
+        "LANGFUSE_CLICKHOUSE_IMAGE",
+        "LANGFUSE_REDIS_IMAGE",
+        "LANGFUSE_MINIO_IMAGE",
+        "POSTGRES_PASSWORD",
+        "CLICKHOUSE_PASSWORD",
+        "REDIS_AUTH",
+        "MINIO_ROOT_PASSWORD",
+        "SALT",
+        "ENCRYPTION_KEY",
+        "NEXTAUTH_SECRET",
+        "NEXTAUTH_URL",
+        "LANGFUSE_MEDIA_URL"
+      ],
+      "generated_secrets": [
+        "POSTGRES_PASSWORD",
+        "CLICKHOUSE_PASSWORD",
+        "REDIS_AUTH",
+        "MINIO_ROOT_PASSWORD",
+        "SALT",
+        "ENCRYPTION_KEY",
+        "NEXTAUTH_SECRET"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "NEXTAUTH_URL": "http://localhost:3035",
+        "LANGFUSE_MEDIA_URL": "http://localhost:9095",
+        "LANGFUSE_IMAGE": "docker.langfuse.com/langfuse/langfuse@sha256:b0556ab389af97d861185323e6dbd410464bb2b1669bd819251cb3635c291c07",
+        "LANGFUSE_WORKER_IMAGE": "docker.langfuse.com/langfuse/langfuse-worker@sha256:25212a931e27f5d8a87cb25c81b5ccdb9f239655c1d9efb54a4378ded32c2c9e",
+        "LANGFUSE_POSTGRES_IMAGE": "postgres@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675",
+        "LANGFUSE_CLICKHOUSE_IMAGE": "clickhouse/clickhouse-server@sha256:8a790dd3468db22b1d4e7b18a176f378ff5ff6053b9c48dd4ea1fa71a24c5ba6",
+        "LANGFUSE_REDIS_IMAGE": "redis@sha256:71da9275c5f3fcb97d0fa0c8c5b36cc995327265420f17a04bfd544f458059f7",
+        "LANGFUSE_MINIO_IMAGE": "cgr.dev/chainguard/minio@sha256:ad4a4c0a39ad7b71408124fe3df07b1b2e9d2959a369fac8754d2ef3311b5c20"
+      },
+      "endpoint": "http://localhost:3035",
+      "resources": {
+        "memory_mb": 8192,
+        "disk_gb": 50,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/langfuse.json",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/stacks/apps/langfuse-health.py"
+        ]
+      },
+      "prepare": "stacks/apps/prepare-storage.py",
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "http://localhost:3035",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-langfuse",
+          "cortex-langfuse-postgres",
+          "cortex-langfuse-redis",
+          "cortex-langfuse-clickhouse",
+          "cortex-langfuse-minio",
+          "cortex-langfuse-worker"
+        ],
+        "category": "applications",
+        "env_file": "langfuse.env"
+      }
+    },
+    {
+      "id": "mail-guardian",
+      "title": "Mail Guardian",
+      "description": "IMAP classification worker built from the included package; dry-run enabled until operator approval.",
+      "depends_on": [
+        "dashboard",
+        "postgresql"
+      ],
+      "ports": [],
+      "secret_keys": [
+        "MAIL_GUARDIAN_DB_PASSWORD",
+        "MAIL_GUARDIAN_ACCOUNT_COUNT",
+        "TELEGRAM_BOT_TOKEN",
+        "MAIL_GUARDIAN_TELEGRAM_OWNER_CHAT_ID",
+        "MAIL_GUARDIAN_NODE_IMAGE",
+        "DATABASE_URL",
+        "OPENAI_API_KEY",
+        "OPENAI_BASE_URL",
+        "MAIL_GUARDIAN_MODEL",
+        "MAIL_GUARDIAN_FALLBACK_MODEL",
+        "MAIL_GUARDIAN_DRY_RUN"
+      ],
+      "generated_secrets": [
+        "MAIL_GUARDIAN_DB_PASSWORD"
+      ],
+      "required_secrets": [
+        "OPENAI_API_KEY",
+        "OPENAI_BASE_URL",
+        "MAIL_GUARDIAN_MODEL",
+        "MAIL_GUARDIAN_FALLBACK_MODEL"
+      ],
+      "secret_defaults": {
+        "MAIL_GUARDIAN_DRY_RUN": "true",
+        "MAIL_GUARDIAN_NODE_IMAGE": "node@sha256:6dac556d980b7f0e5498d08f08cee0ca67798b4ad6c23964a9214920e67758d0"
+      },
+      "endpoint": "Worker; no HTTP listener",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 2,
+        "cpu_cores": 2
+      },
+      "kind": "compose",
+      "recipe": "stacks/apps/mail-guardian.json",
+      "prepare": "stacks/apps/prepare-mail-guardian.py",
+      "secret_key_patterns": [
+        "^MAIL_GUARDIAN_ACCOUNT_(?:[1-9]|[1-9][0-9]|100)_(?:SLUG|ADDRESS|HOST|PORT|SECURE|USERNAME|PASSWORD_B64|INBOX|REVIEW_MAILBOX|TRASH_MAILBOX)$"
+      ],
+      "verify": {
+        "type": "command",
+        "command": [
+          "docker",
+          "exec",
+          "cortex-mail-guardian",
+          "node",
+          "@ROOT@/stacks/apps/mail-guardian-health.mjs"
+        ]
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": null,
+        "container_names": [
+          "cortex-mail-guardian"
+        ],
+        "category": "applications",
+        "env_file": "mail-guardian.env"
+      }
+    },
+    {
+      "id": "prometheus",
+      "title": "Prometheus",
+      "description": "Prometheus private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        9090
+      ],
+      "secret_keys": [
+        "PROMETHEUS_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9090",
+      "resources": {
+        "memory_mb": 2048,
+        "disk_gb": 20,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/prometheus.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9090/-/ready"
+      },
+      "image_repository": "prom/prometheus",
+      "secret_defaults": {
+        "PROMETHEUS_IMAGE": "prom/prometheus@sha256:6976aa8a60fec930796ce5772b8d12da7a318a5daa8d40d69c5c7819a05eeed7"
+      },
+      "runtime_source": {
+        "tag": "v3.13.3",
+        "digest": "sha256:6976aa8a60fec930796ce5772b8d12da7a318a5daa8d40d69c5c7819a05eeed7",
+        "source": "https://hub.docker.com/v2/repositories/prom/prometheus/tags/v3.13.3",
+        "repository": "prom/prometheus",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "arm64",
+          "s390x",
+          "arm",
+          "riscv64"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:9090/-/ready",
+        "open_url": "http://127.0.0.1:9090",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-prometheus"
+        ],
+        "category": "observability",
+        "env_file": "prometheus.env"
+      }
+    },
+    {
+      "id": "grafana",
+      "title": "Grafana",
+      "description": "Grafana private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        3000
+      ],
+      "secret_keys": [
+        "GRAFANA_IMAGE",
+        "GF_SECURITY_ADMIN_PASSWORD",
+        "GF_SECURITY_SECRET_KEY"
+      ],
+      "generated_secrets": [
+        "GF_SECURITY_ADMIN_PASSWORD",
+        "GF_SECURITY_SECRET_KEY"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:3000",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/grafana.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "startup_timeout_seconds": 600,
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:3000/api/health"
+      },
+      "image_repository": "grafana/grafana",
+      "secret_defaults": {
+        "GRAFANA_IMAGE": "grafana/grafana@sha256:a21e4b8b9cd20e9a556dd9e2efd4d81855d4390b507406b0ae11720b71e44ac2"
+      },
+      "runtime_source": {
+        "tag": "13.0.8",
+        "digest": "sha256:a21e4b8b9cd20e9a556dd9e2efd4d81855d4390b507406b0ae11720b71e44ac2",
+        "source": "https://hub.docker.com/v2/repositories/grafana/grafana/tags/13.0.8",
+        "repository": "grafana/grafana",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:3000/api/health",
+        "open_url": "http://127.0.0.1:3000",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-grafana"
+        ],
+        "category": "observability",
+        "env_file": "grafana.env"
+      }
+    },
+    {
+      "id": "loki",
+      "title": "Loki",
+      "description": "Loki private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        3100
+      ],
+      "secret_keys": [
+        "LOKI_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:3100",
+      "resources": {
+        "memory_mb": 1024,
+        "disk_gb": 20,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/loki.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:3100/ready"
+      },
+      "image_repository": "grafana/loki",
+      "secret_defaults": {
+        "LOKI_IMAGE": "grafana/loki@sha256:d70e4659623f3e109af669cae76fe2a5dd5be54e2298fe8aed380d982fbc2500"
+      },
+      "runtime_source": {
+        "tag": "3.7.7",
+        "digest": "sha256:d70e4659623f3e109af669cae76fe2a5dd5be54e2298fe8aed380d982fbc2500",
+        "source": "https://hub.docker.com/v2/repositories/grafana/loki/tags/3.7.7",
+        "repository": "grafana/loki",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:3100/ready",
+        "open_url": "http://127.0.0.1:3100",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-loki"
+        ],
+        "category": "observability",
+        "env_file": "loki.env"
+      }
+    },
+    {
+      "id": "fluent-bit",
+      "title": "Fluent Bit",
+      "description": "Fluent Bit private monitoring or database administration service.",
+      "depends_on": [
+        "loki"
+      ],
+      "ports": [
+        2020
+      ],
+      "secret_keys": [
+        "FLUENT_BIT_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:2020",
+      "resources": {
+        "memory_mb": 256,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/fluent-bit.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:2020/api/v1/health"
+      },
+      "image_repository": "fluent/fluent-bit",
+      "secret_defaults": {
+        "FLUENT_BIT_IMAGE": "fluent/fluent-bit@sha256:d792375ca8e53be72fc25716c28f291f32c6fc6f4f31d12d0d14bc78cefe9226"
+      },
+      "runtime_source": {
+        "tag": "5.1.2",
+        "digest": "sha256:d792375ca8e53be72fc25716c28f291f32c6fc6f4f31d12d0d14bc78cefe9226",
+        "source": "https://hub.docker.com/v2/repositories/fluent/fluent-bit/tags/5.1.2",
+        "repository": "fluent/fluent-bit",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:2020/api/v1/health",
+        "open_url": "http://127.0.0.1:2020",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-fluent-bit"
+        ],
+        "category": "observability",
+        "env_file": "fluent-bit.env"
+      }
+    },
+    {
+      "id": "cadvisor",
+      "title": "cAdvisor",
+      "description": "cAdvisor private monitoring or database administration service.",
+      "security": {
+        "risk": "host-root-equivalent",
+        "elevated_privileges": true,
+        "operator_warning": "Privileged container with host filesystem, Docker API and device access. A read-only socket mount does not restrict Docker API operations."
+      },
+      "depends_on": [],
+      "ports": [
+        8085
+      ],
+      "secret_keys": [
+        "CADVISOR_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8085",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/cadvisor.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8085/healthz"
+      },
+      "image_repository": "ghcr.io/google/cadvisor",
+      "secret_defaults": {
+        "CADVISOR_IMAGE": "ghcr.io/google/cadvisor@sha256:e02855207ec07bb45ee41f720645945251f093f24c28f8c29cf718490f784922"
+      },
+      "runtime_source": {
+        "tag": "0.55.1",
+        "digest": "sha256:e02855207ec07bb45ee41f720645945251f093f24c28f8c29cf718490f784922",
+        "source": "https://ghcr.io/v2/google/cadvisor/manifests/0.55.1",
+        "repository": "ghcr.io/google/cadvisor",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "unknown",
+          "unknown"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:8085/healthz",
+        "open_url": "http://127.0.0.1:8085",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-cadvisor"
+        ],
+        "category": "observability",
+        "env_file": "cadvisor.env"
+      }
+    },
+    {
+      "id": "node-exporter",
+      "title": "Node Exporter",
+      "description": "Node Exporter private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        9100
+      ],
+      "secret_keys": [
+        "NODE_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9100",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/node-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9100/metrics"
+      },
+      "image_repository": "prom/node-exporter",
+      "secret_defaults": {
+        "NODE_EXPORTER_IMAGE": "prom/node-exporter@sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0"
+      },
+      "runtime_source": {
+        "tag": "v1.12.1",
+        "digest": "sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0",
+        "source": "https://hub.docker.com/v2/repositories/prom/node-exporter/tags/v1.12.1",
+        "repository": "prom/node-exporter",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "arm64",
+          "s390x",
+          "arm",
+          "riscv64"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:9100/metrics",
+        "open_url": "http://127.0.0.1:9100",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-node-exporter"
+        ],
+        "category": "observability",
+        "env_file": "node-exporter.env"
+      }
+    },
+    {
+      "id": "pg-exporter",
+      "title": "PostgreSQL Exporter",
+      "description": "PostgreSQL Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "postgresql"
+      ],
+      "ports": [
+        9187
+      ],
+      "secret_keys": [
+        "PG_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9187",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/pg-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9187/metrics",
+        "body_pattern": "^pg_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "prometheuscommunity/postgres-exporter",
+      "secret_defaults": {
+        "PG_EXPORTER_IMAGE": "prometheuscommunity/postgres-exporter@sha256:ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e"
+      },
+      "runtime_source": {
+        "tag": "v0.20.1",
+        "digest": "sha256:ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e",
+        "source": "https://hub.docker.com/v2/repositories/prometheuscommunity/postgres-exporter/tags/v0.20.1",
+        "repository": "prometheuscommunity/postgres-exporter",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:9187/metrics",
+        "open_url": "http://127.0.0.1:9187",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-pg-exporter"
+        ],
+        "category": "observability",
+        "env_file": "pg-exporter.env"
+      }
+    },
+    {
+      "id": "redis-exporter",
+      "title": "Redis Exporter",
+      "description": "Redis Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "redis"
+      ],
+      "ports": [
+        9121
+      ],
+      "secret_keys": [
+        "REDIS_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9121",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/redis-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9121/metrics",
+        "body_pattern": "^redis_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "oliver006/redis_exporter",
+      "secret_defaults": {
+        "REDIS_EXPORTER_IMAGE": "oliver006/redis_exporter@sha256:c67a432dba6b4ae30f471e3c77cf14a289133bbeeb89abb0bb03e6092efb2836"
+      },
+      "runtime_source": {
+        "tag": "v1.91.1",
+        "digest": "sha256:c67a432dba6b4ae30f471e3c77cf14a289133bbeeb89abb0bb03e6092efb2836",
+        "source": "https://hub.docker.com/v2/repositories/oliver006/redis_exporter/tags/v1.91.1",
+        "repository": "oliver006/redis_exporter",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:9121/metrics",
+        "open_url": "http://127.0.0.1:9121",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-redis-exporter"
+        ],
+        "category": "observability",
+        "env_file": "redis-exporter.env"
+      }
+    },
+    {
+      "id": "mongo-exporter",
+      "title": "MongoDB Exporter",
+      "description": "MongoDB Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "mongodb"
+      ],
+      "ports": [
+        9216
+      ],
+      "secret_keys": [
+        "MONGO_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9216",
+      "resources": {
+        "memory_mb": 256,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/mongo-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9216/metrics",
+        "body_pattern": "^mongodb_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "percona/mongodb_exporter",
+      "secret_defaults": {
+        "MONGO_EXPORTER_IMAGE": "percona/mongodb_exporter@sha256:0214e482b2cd4b1849f9f4dcef90d328a99ba3727dd1103e7da48b42060bcec1"
+      },
+      "runtime_source": {
+        "tag": "0.53.0",
+        "digest": "sha256:0214e482b2cd4b1849f9f4dcef90d328a99ba3727dd1103e7da48b42060bcec1",
+        "source": "https://hub.docker.com/v2/repositories/percona/mongodb_exporter/tags/0.53.0",
+        "repository": "percona/mongodb_exporter",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:9216/metrics",
+        "open_url": "http://127.0.0.1:9216",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-mongo-exporter"
+        ],
+        "category": "observability",
+        "env_file": "mongo-exporter.env"
+      }
+    },
+    {
+      "id": "mysql-exporter",
+      "title": "MySQL Exporter",
+      "description": "MySQL Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "mysql"
+      ],
+      "ports": [
+        9104
+      ],
+      "secret_keys": [
+        "MYSQL_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9104",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/mysql-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9104/metrics",
+        "body_pattern": "^mysql_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "prom/mysqld-exporter",
+      "secret_defaults": {
+        "MYSQL_EXPORTER_IMAGE": "prom/mysqld-exporter@sha256:abed8dac117b4ae5b70757f988e44795935b9a72c3b58d720c67ba688f8cb79e"
+      },
+      "runtime_source": {
+        "tag": "v0.20.0",
+        "digest": "sha256:abed8dac117b4ae5b70757f988e44795935b9a72c3b58d720c67ba688f8cb79e",
+        "source": "https://hub.docker.com/v2/repositories/prom/mysqld-exporter/tags/v0.20.0",
+        "repository": "prom/mysqld-exporter",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:9104/metrics",
+        "open_url": "http://127.0.0.1:9104",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-mysql-exporter"
+        ],
+        "category": "observability",
+        "env_file": "mysql-exporter.env"
+      }
+    },
+    {
+      "id": "pgadmin",
+      "title": "pgAdmin",
+      "description": "pgAdmin private monitoring or database administration service.",
+      "depends_on": [
+        "postgresql"
+      ],
+      "ports": [
+        5050
+      ],
+      "secret_keys": [
+        "PGADMIN_IMAGE",
+        "PGADMIN_DEFAULT_PASSWORD",
+        "PGADMIN_DEFAULT_EMAIL"
+      ],
+      "generated_secrets": [
+        "PGADMIN_DEFAULT_PASSWORD"
+      ],
+      "required_secrets": [
+        "PGADMIN_DEFAULT_EMAIL"
+      ],
+      "endpoint": "http://127.0.0.1:5050",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/pgadmin.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "startup_timeout_seconds": 600,
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:5050/misc/ping"
+      },
+      "image_repository": "dpage/pgadmin4",
+      "secret_defaults": {
+        "PGADMIN_IMAGE": "dpage/pgadmin4@sha256:2f4ce946ddf8360680d7eff4eaba1d91859eb6b4003e6623bad5c63a322c2f4d"
+      },
+      "runtime_source": {
+        "tag": "9.17",
+        "digest": "sha256:2f4ce946ddf8360680d7eff4eaba1d91859eb6b4003e6623bad5c63a322c2f4d",
+        "source": "https://hub.docker.com/v2/repositories/dpage/pgadmin4/tags/9.17",
+        "repository": "dpage/pgadmin4",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:5050/misc/ping",
+        "open_url": "http://127.0.0.1:5050",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-pgadmin"
+        ],
+        "category": "observability",
+        "env_file": "pgadmin.env"
+      }
+    },
+    {
+      "id": "redisinsight",
+      "title": "Redis Insight",
+      "description": "Redis Insight private monitoring or database administration service.",
+      "depends_on": [
+        "redis"
+      ],
+      "ports": [
+        5540
+      ],
+      "secret_keys": [
+        "REDISINSIGHT_IMAGE",
+        "RI_ENCRYPTION_KEY",
+        "REDISINSIGHT_PROXY_IMAGE",
+        "REDISINSIGHT_PROXY_PASSWORD",
+        "RI_ACCEPT_TERMS_AND_CONDITIONS"
+      ],
+      "generated_secrets": [
+        "RI_ENCRYPTION_KEY",
+        "REDISINSIGHT_PROXY_PASSWORD"
+      ],
+      "required_secrets": [
+        "RI_ACCEPT_TERMS_AND_CONDITIONS"
+      ],
+      "endpoint": "http://127.0.0.1:5540",
+      "resources": {
+        "memory_mb": 576,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/redisinsight.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "recreate_on_apply": true,
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/stacks/observability/verify-redisinsight.py"
+        ]
+      },
+      "image_repository": "redis/redisinsight",
+      "security": {
+        "authentication": "Gateway Basic authentication on every HTTP method and path",
+        "backend_network": "Gateway network namespace with backend bound only to namespace loopback; bridge-IP reachability rejected by readiness check",
+        "credential_key": "REDISINSIGHT_PROXY_PASSWORD",
+        "username": "admin"
+      },
+      "secret_defaults": {
+        "REDISINSIGHT_IMAGE": "redis/redisinsight@sha256:b5e19ee240abef6edb435871b90ff8a210995422e8e018ab61c0339d318a1f84",
+        "REDISINSIGHT_PROXY_IMAGE": "haproxy@sha256:6343ce34a132a5dceaa24767d739df2bd519f8f7c1079ae39e4821334e8eb42e"
+      },
+      "runtime_source": {
+        "tag": "3.8.0",
+        "digest": "sha256:b5e19ee240abef6edb435871b90ff8a210995422e8e018ab61c0339d318a1f84",
+        "source": "https://hub.docker.com/v2/repositories/redis/redisinsight/tags/3.8.0",
+        "repository": "redis/redisinsight",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "http://127.0.0.1:5540",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-redisinsight",
+          "cortex-redisinsight-gateway"
+        ],
+        "category": "observability",
+        "env_file": "redisinsight.env"
+      }
+    },
+    {
+      "id": "phpmyadmin",
+      "title": "phpMyAdmin",
+      "description": "phpMyAdmin private monitoring or database administration service.",
+      "depends_on": [
+        "mysql"
+      ],
+      "ports": [
+        8086
+      ],
+      "secret_keys": [
+        "PHPMYADMIN_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8086",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/phpmyadmin.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8086/"
+      },
+      "image_repository": "phpmyadmin",
+      "secret_defaults": {
+        "PHPMYADMIN_IMAGE": "phpmyadmin@sha256:3a8a8d6b5289091f959ba0293f21163b3a2fc5741991a53de70b3497fe8d31db"
+      },
+      "runtime_source": {
+        "tag": "5.2.3-apache",
+        "digest": "sha256:3a8a8d6b5289091f959ba0293f21163b3a2fc5741991a53de70b3497fe8d31db",
+        "source": "https://hub.docker.com/v2/repositories/library/phpmyadmin/tags/5.2.3-apache",
+        "repository": "library/phpmyadmin",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "386",
+          "s390x",
+          "arm",
+          "arm64",
+          "arm",
+          "riscv64"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:8086/",
+        "open_url": "http://127.0.0.1:8086",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-phpmyadmin"
+        ],
+        "category": "observability",
+        "env_file": "phpmyadmin.env"
+      }
+    },
+    {
+      "id": "mongo-express",
+      "title": "Mongo Express",
+      "description": "Mongo Express private monitoring or database administration service.",
+      "depends_on": [
+        "mongodb"
+      ],
+      "ports": [
+        8087
+      ],
+      "secret_keys": [
+        "MONGO_EXPRESS_IMAGE",
+        "ME_CONFIG_BASICAUTH_PASSWORD",
+        "ME_CONFIG_SITE_COOKIESECRET",
+        "ME_CONFIG_SITE_SESSIONSECRET",
+        "ME_CONFIG_BASICAUTH_USERNAME"
+      ],
+      "generated_secrets": [
+        "ME_CONFIG_BASICAUTH_PASSWORD",
+        "ME_CONFIG_SITE_COOKIESECRET",
+        "ME_CONFIG_SITE_SESSIONSECRET"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8087",
+      "resources": {
+        "memory_mb": 256,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/mongo-express.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8087/status"
+      },
+      "image_repository": "mongo-express",
+      "secret_defaults": {
+        "ME_CONFIG_BASICAUTH_USERNAME": "admin",
+        "MONGO_EXPRESS_IMAGE": "mongo-express@sha256:1aae0077525133249133d42980ba23998712a1077e02ac0ac295b50a7a79d550"
+      },
+      "runtime_source": {
+        "tag": "1.0.2-20-alpine3.19",
+        "digest": "sha256:1aae0077525133249133d42980ba23998712a1077e02ac0ac295b50a7a79d550",
+        "source": "https://hub.docker.com/v2/repositories/library/mongo-express/tags/1.0.2-20-alpine3.19",
+        "repository": "library/mongo-express",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "http",
+        "health_url": "http://127.0.0.1:8087/status",
+        "open_url": "http://127.0.0.1:8087",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-mongo-express"
+        ],
+        "category": "observability",
+        "env_file": "mongo-express.env"
+      }
+    },
+    {
+      "id": "incus",
+      "title": "Incus",
+      "description": "Ubuntu-pinned Incus with restricted NAT development containers or VMs, coding tools and opt-in key-only SSH.",
+      "depends_on": [],
+      "ports": [],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/incus.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/incus.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": "incus.service",
+        "container_names": [],
+        "category": "agents",
+        "env_file": "incus.env"
+      }
+    },
+    {
+      "id": "hermes",
+      "title": "Hermes Agent",
+      "description": "Automatically installs immutable Hermes source and frozen dependencies; only manifest-named agents are created.",
+      "depends_on": [],
+      "ports": [],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/hermes.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/hermes.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": null,
+        "container_names": [],
+        "category": "agents",
+        "env_file": "hermes.env"
+      }
+    },
+    {
+      "id": "openclaw",
+      "title": "OpenClaw",
+      "description": "Automatically installs integrity-verified OpenClaw and private pinned Node; no default model or identity.",
+      "depends_on": [],
+      "ports": [],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/openclaw.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/openclaw.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "#",
+        "has_webui": false,
+        "unit_name": null,
+        "container_names": [],
+        "category": "agents",
+        "env_file": "openclaw.env"
+      }
+    },
+    {
+      "id": "sandbox-runner",
+      "title": "Sandbox runner",
+      "description": "Authenticated loopback execution API using networkless rootless Podman and gVisor, without privileged fallback.",
+      "depends_on": [],
+      "ports": [
+        8091
+      ],
+      "secret_keys": [
+        "CORTEX_SANDBOX_API_TOKEN",
+        "PODMAN_VERSION",
+        "SANDBOX_IMAGE"
+      ],
+      "generated_secrets": [
+        "CORTEX_SANDBOX_API_TOKEN"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8091",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/sandbox-runner.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/sandbox-runner.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      },
+      "secret_defaults": {
+        "PODMAN_VERSION": "5.7.0+ds2-3build1",
+        "SANDBOX_IMAGE": "docker.io/library/alpine@sha256:14358309a308569c32bdc37e2e0e9694be33a9d99e68afb0f5ff33cc1f695dce"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "http://127.0.0.1:8091",
+        "has_webui": true,
+        "unit_name": "cortex-sandbox-runner.service",
+        "container_names": [],
+        "category": "agents",
+        "env_file": "sandbox-runner.env"
+      }
+    },
+    {
+      "id": "kernel-browser",
+      "title": "Kernel browser",
+      "description": "Browserless Chromium automation with authenticated API and loopback-only publication.",
+      "depends_on": [],
+      "ports": [
+        3333
+      ],
+      "secret_keys": [
+        "KERNEL_BROWSER_IMAGE",
+        "TOKEN"
+      ],
+      "generated_secrets": [
+        "TOKEN"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:3333",
+      "resources": {
+        "memory_mb": 2048,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/kernel-browser.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/kernel-browser.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      },
+      "secret_defaults": {
+        "KERNEL_BROWSER_IMAGE": "ghcr.io/browserless/chromium@sha256:ae07025606e03c9b263620aaf4d09c52728f71a104ac7d471a68c23dec72c05f"
+      },
+      "conflicts": [],
+      "dashboard": {
+        "health_type": "none",
+        "health_url": "#",
+        "open_url": "http://127.0.0.1:3333",
+        "has_webui": true,
+        "unit_name": null,
+        "container_names": [
+          "cortex-kernel-browser"
+        ],
+        "category": "agents",
+        "env_file": "kernel-browser.env"
+      }
+    }
+  ]
+}

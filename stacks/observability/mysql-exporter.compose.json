@@ -1,0 +1,40 @@
+{
+  "services": {
+    "mysql-exporter": {
+      "image": "${MYSQL_EXPORTER_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-mysql-exporter",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:9104:9104"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/mysql.env",
+        "@SECRETS_DIR@/mysql-exporter.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "MYSQLD_EXPORTER_PASSWORD": "${MYSQL_ROOT_PASSWORD:?required}"
+      },
+      "command": [
+        "--mysqld.address=cortex-mysql:3306",
+        "--mysqld.username=root",
+        "--config.my-cnf="
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

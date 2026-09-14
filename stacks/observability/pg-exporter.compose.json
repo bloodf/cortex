@@ -1,0 +1,40 @@
+{
+  "services": {
+    "pg-exporter": {
+      "image": "${PG_EXPORTER_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-pg-exporter",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:9187:9187"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/postgresql.env",
+        "@SECRETS_DIR@/pg-exporter.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "DATA_SOURCE_URI": "cortex-postgresql:5432/${POSTGRES_DB:?required}?sslmode=disable",
+        "DATA_SOURCE_USER": "${POSTGRES_USER:?required}",
+        "DATA_SOURCE_PASS": "${POSTGRES_PASSWORD:?required}"
+      },
+      "command": [
+        "--config.file="
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

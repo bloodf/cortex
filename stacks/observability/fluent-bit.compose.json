@@ -1,0 +1,41 @@
+{
+  "services": {
+    "fluent-bit": {
+      "image": "${FLUENT_BIT_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-fluent-bit",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:2020:2020"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/fluent-bit.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "user": "0:0",
+      "command": [
+        "-c",
+        "/fluent-bit/etc/cortex.conf"
+      ],
+      "volumes": [
+        "@ROOT@/stacks/observability/fluent-bit.conf:/fluent-bit/etc/cortex.conf:ro",
+        "@DATA_ROOT@/fluent-bit:/buffers",
+        "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

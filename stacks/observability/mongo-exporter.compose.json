@@ -1,0 +1,37 @@
+{
+  "services": {
+    "mongo-exporter": {
+      "image": "${MONGO_EXPORTER_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-mongo-exporter",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:9216:9216"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/mongodb.env",
+        "@SECRETS_DIR@/mongo-exporter.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "MONGODB_URI": "mongodb://cortex-mongodb:27017/admin?authSource=admin",
+        "MONGODB_USER": "${MONGO_INITDB_ROOT_USERNAME:?required}",
+        "MONGODB_PASSWORD": "${MONGO_INITDB_ROOT_PASSWORD:?required}"
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

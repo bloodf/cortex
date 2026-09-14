@@ -1,0 +1,42 @@
+{
+  "services": {
+    "grafana": {
+      "image": "${GRAFANA_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-grafana",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:3000:3000"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/grafana.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "GF_SECURITY_ADMIN_USER": "admin",
+        "GF_AUTH_ANONYMOUS_ENABLED": "false",
+        "GF_USERS_ALLOW_SIGN_UP": "false",
+        "GF_ANALYTICS_REPORTING_ENABLED": "false",
+        "GF_ANALYTICS_CHECK_FOR_UPDATES": "false"
+      },
+      "volumes": [
+        "@DATA_ROOT@/grafana:/var/lib/grafana",
+        "@DATA_ROOT@/grafana-provisioning:/etc/grafana/provisioning/datasources:ro"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

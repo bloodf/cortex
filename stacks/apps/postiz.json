@@ -1,0 +1,220 @@
+{
+  "services": {
+    "postiz": {
+      "image": "${POSTIZ_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-postiz",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private",
+        "backend"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/postiz/config:/config",
+        "@DATA_ROOT@/postiz/uploads:/uploads"
+      ],
+      "ports": [
+        "127.0.0.1:4007:5000"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/postiz.env"
+      ],
+      "environment": {
+        "DATABASE_URL": "postgresql://postiz:${POSTGRES_PASSWORD}@cortex-postiz-postgres:5432/postiz",
+        "REDIS_URL": "redis://cortex-postiz-redis:6379",
+        "BACKEND_INTERNAL_URL": "http://localhost:3000",
+        "TEMPORAL_ADDRESS": "cortex-postiz-temporal:7233",
+        "IS_GENERAL": "true",
+        "RUN_CRON": "true",
+        "STORAGE_PROVIDER": "local",
+        "UPLOAD_DIRECTORY": "/uploads",
+        "NEXT_PUBLIC_UPLOAD_DIRECTORY": "/uploads",
+        "NX_ADD_PLUGINS": "false"
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "node",
+          "-e",
+          "(async () => { for (const headers of [{}, {Authorization: 'cortex-readiness-invalid-token'}]) { const response = await fetch('http://127.0.0.1:5000/api/public/v1/integrations', {headers, redirect: 'manual', signal: AbortSignal.timeout(2000)}); await response.body?.cancel(); if (response.status !== 401) process.exit(1); } })().catch(() => process.exit(1));"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 60
+      },
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        },
+        "redis": {
+          "condition": "service_healthy"
+        },
+        "temporal": {
+          "condition": "service_healthy"
+        }
+      }
+    },
+    "postgres": {
+      "image": "${POSTIZ_POSTGRES_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-postiz-postgres",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "POSTGRES_USER": "postiz",
+        "POSTGRES_DB": "postiz",
+        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD}"
+      },
+      "volumes": [
+        "@DATA_ROOT@/postiz/postgres:/var/lib/postgresql/data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "postiz",
+          "-d",
+          "postiz"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    },
+    "redis": {
+      "image": "${POSTIZ_REDIS_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-postiz-redis",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/postiz/redis:/data"
+      ],
+      "command": [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    },
+    "temporal-postgres": {
+      "image": "${POSTIZ_TEMPORAL_POSTGRES_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-postiz-temporal-postgres",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "POSTGRES_USER": "temporal",
+        "POSTGRES_DB": "temporal",
+        "POSTGRES_PASSWORD": "${TEMPORAL_POSTGRES_PASSWORD}"
+      },
+      "volumes": [
+        "@DATA_ROOT@/postiz/temporal-postgres:/var/lib/postgresql/data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "temporal",
+          "-d",
+          "temporal"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    },
+    "elasticsearch": {
+      "image": "${POSTIZ_ELASTICSEARCH_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-postiz-elasticsearch",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "discovery.type": "single-node",
+        "ES_JAVA_OPTS": "-Xms512m -Xmx512m",
+        "xpack.security.enabled": "false"
+      },
+      "volumes": [
+        "@DATA_ROOT@/postiz/elasticsearch:/usr/share/elasticsearch/data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "curl",
+          "-fsS",
+          "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s"
+        ],
+        "interval": "10s",
+        "timeout": "10s",
+        "retries": 30
+      }
+    },
+    "temporal": {
+      "image": "${POSTIZ_TEMPORAL_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-postiz-temporal",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "DB": "postgres12",
+        "DB_PORT": "5432",
+        "POSTGRES_USER": "temporal",
+        "POSTGRES_PWD": "${TEMPORAL_POSTGRES_PASSWORD}",
+        "POSTGRES_SEEDS": "cortex-postiz-temporal-postgres",
+        "ENABLE_ES": "true",
+        "ES_SEEDS": "cortex-postiz-elasticsearch",
+        "ES_VERSION": "v7",
+        "TEMPORAL_NAMESPACE": "default"
+      },
+      "depends_on": {
+        "temporal-postgres": {
+          "condition": "service_healthy"
+        },
+        "elasticsearch": {
+          "condition": "service_healthy"
+        }
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "temporal",
+          "operator",
+          "cluster",
+          "health",
+          "--address",
+          "cortex-postiz-temporal:7233"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30,
+        "start_period": "60s"
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    },
+    "backend": {
+      "internal": true
+    }
+  }
+}

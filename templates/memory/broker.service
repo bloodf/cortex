@@ -1,0 +1,43 @@
+[Unit]
+Description=Cortex bank-scoped Hindsight broker
+After=docker.service network-online.target
+Requires=docker.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=@ROOT@
+ExecStart=/usr/bin/python3 -B -E -s @ROOT@/scripts/memory/broker.py
+Restart=on-failure
+RestartSec=10
+UMask=0077
+Environment=PATH=/usr/bin:/bin
+Environment=PYTHONDONTWRITEBYTECODE=1
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_INET AF_UNIX
+ReadOnlyPaths=/etc/cortex/secrets
+InaccessiblePaths=/run/docker.sock
+TasksMax=64
+MemoryMax=256M
+LimitNOFILE=256
+StandardOutput=null
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

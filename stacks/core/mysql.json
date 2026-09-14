@@ -1,0 +1,38 @@
+{
+  "services": {
+    "mysql": {
+      "image": "mysql:8.4.6@sha256:869218921e61d6c3c89820955d63cca42971f0e3e6c1e2792247bbd944ebc6e9",
+      "container_name": "cortex-mysql",
+      "restart": "unless-stopped",
+      "env_file": [
+        "@SECRETS_DIR@/mysql.env"
+      ],
+      "ports": [
+        "127.0.0.1:3306:3306"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/mysql:/var/lib/mysql"
+      ],
+      "networks": [
+        "cortex-private"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "MYSQL_PWD=\"$${MYSQL_ROOT_PASSWORD}\" mysql -uroot -e \"SELECT 1\""
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

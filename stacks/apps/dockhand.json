@@ -1,0 +1,38 @@
+{
+  "services": {
+    "dockhand": {
+      "image": "${DOCKHAND_IMAGE:?immutable image default missing}",
+      "container_name": "cortex-dockhand",
+      "restart": "unless-stopped",
+      "network_mode": "service:proxy",
+      "depends_on": {"proxy": {"condition": "service_started", "restart": true}},
+      "environment": {"DATA_DIR": "@DATA_ROOT@/dockhand", "HOST": "127.0.0.1", "PORT": "3000"},
+      "volumes": [
+        "/var/run/docker.sock:/var/run/docker.sock",
+        "@DATA_ROOT@/dockhand:@DATA_ROOT@/dockhand"
+      ],
+      "group_add": ["${DOCKER_GID:?Docker socket group discovery failed}"]
+    },
+    "proxy": {
+      "image": "${DOCKHAND_PROXY_IMAGE:?immutable proxy default missing}",
+      "container_name": "cortex-dockhand-proxy",
+      "restart": "unless-stopped",
+      "user": "101:101",
+      "read_only": true,
+      "cap_drop": ["ALL"],
+      "security_opt": ["no-new-privileges:true"],
+      "entrypoint": ["nginx"],
+      "command": ["-g", "daemon off;"],
+      "networks": ["cortex-private"],
+      "ports": ["127.0.0.1:3420:8080"],
+      "volumes": [
+        "@ROOT@/stacks/apps/dockhand-nginx.conf:/etc/nginx/nginx.conf:ro",
+        "@DATA_ROOT@/dockhand-auth:/auth:ro"
+      ],
+      "tmpfs": ["/tmp:rw,noexec,nosuid,size=128m,uid=101,gid=101"]
+    }
+  },
+  "networks": {
+    "cortex-private": {"external": true}
+  }
+}

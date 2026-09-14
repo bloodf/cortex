@@ -1,0 +1,29 @@
+{
+  "services": {
+    "jellyfin": {
+      "image": "${JELLYFIN_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-jellyfin",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/jellyfin/config:/config",
+        "@DATA_ROOT@/jellyfin/cache:/cache",
+        "@DATA_ROOT@/jellyfin/media:/media:ro"
+      ],
+      "ports": [
+        "127.0.0.1:8096:8096"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/jellyfin.env"
+      ],
+      "init": true
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

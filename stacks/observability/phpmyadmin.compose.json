@@ -1,0 +1,39 @@
+{
+  "services": {
+    "phpmyadmin": {
+      "image": "${PHPMYADMIN_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-phpmyadmin",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:8086:80"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/mysql.env",
+        "@SECRETS_DIR@/phpmyadmin.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "PMA_HOST": "cortex-mysql",
+        "PMA_PORT": "3306",
+        "PMA_ARBITRARY": "0",
+        "HIDE_PHP_VERSION": "true",
+        "UPLOAD_LIMIT": "64M"
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

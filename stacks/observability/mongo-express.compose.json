@@ -1,0 +1,44 @@
+{
+  "services": {
+    "mongo-express": {
+      "image": "${MONGO_EXPRESS_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-mongo-express",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:8087:8081"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/mongodb.env",
+        "@SECRETS_DIR@/mongo-express.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "ME_CONFIG_BASICAUTH": "true",
+        "ME_CONFIG_MONGODB_ENABLE_ADMIN": "true",
+        "ME_CONFIG_HEALTH_CHECK_PATH": "/status",
+        "VCAP_APP_HOST": "0.0.0.0"
+      },
+      "user": "0:0",
+      "entrypoint": ["node", "--input-type=module", "-e"],
+      "command": ["import fs from 'node:fs'; process.env.ME_CONFIG_MONGODB_URL = fs.readFileSync('/run/cortex/mongodb-url', 'utf8'); process.argv = [process.execPath, process.cwd() + '/app.js']; await import(process.cwd() + '/app.js');"],
+      "volumes": [
+        "@DATA_ROOT@/mongo-express-config:/run/cortex:ro"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

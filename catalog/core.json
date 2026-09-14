@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "services": [
+    {
+      "id": "postgresql",
+      "title": "PostgreSQL",
+      "description": "Core relational database with local generated administrator credentials.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        5432
+      ],
+      "secret_keys": [
+        "POSTGRES_USER",
+        "POSTGRES_DB",
+        "POSTGRES_PASSWORD"
+      ],
+      "generated_secrets": [
+        "POSTGRES_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "POSTGRES_USER": "cortex",
+        "POSTGRES_DB": "cortex"
+      },
+      "endpoint": "tcp://127.0.0.1:5432",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/postgresql.json",
+      "verify": {
+        "type": "tcp",
+        "port": 5432
+      }
+    },
+    {
+      "id": "redis",
+      "title": "Redis",
+      "description": "Authenticated persistent cache; no public listener.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        6379
+      ],
+      "secret_keys": [
+        "REDIS_PASSWORD"
+      ],
+      "generated_secrets": [
+        "REDIS_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": "tcp://127.0.0.1:6379",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/redis.json",
+      "verify": {
+        "type": "tcp",
+        "port": 6379
+      }
+    },
+    {
+      "id": "mongodb",
+      "title": "MongoDB",
+      "description": "Authenticated document database.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        27017
+      ],
+      "secret_keys": [
+        "MONGO_INITDB_ROOT_USERNAME",
+        "MONGO_INITDB_ROOT_PASSWORD"
+      ],
+      "generated_secrets": [
+        "MONGO_INITDB_ROOT_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {
+        "MONGO_INITDB_ROOT_USERNAME": "cortex"
+      },
+      "endpoint": "tcp://127.0.0.1:27017",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/mongodb.json",
+      "verify": {
+        "type": "tcp",
+        "port": 27017
+      }
+    },
+    {
+      "id": "mysql",
+      "title": "MySQL",
+      "description": "Authenticated relational database.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [
+        3306
+      ],
+      "secret_keys": [
+        "MYSQL_ROOT_PASSWORD"
+      ],
+      "generated_secrets": [
+        "MYSQL_ROOT_PASSWORD"
+      ],
+      "required_secrets": [],
+      "secret_defaults": {"MYSQL_ROOT_HOST": "%"},
+      "endpoint": "tcp://127.0.0.1:3306",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "compose",
+      "recipe": "stacks/core/mysql.json",
+      "verify": {
+        "type": "tcp",
+        "port": 3306
+      }
+    },
+    {
+      "id": "dashboard",
+      "title": "Cortex dashboard",
+      "description": "Authenticated management interface and terminal; installed by base installer.",
+      "depends_on": [
+        "postgresql"
+      ],
+      "conflicts": [],
+      "ports": [
+        3080,
+        3081,
+        3082
+      ],
+      "secret_keys": [
+        "DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD", "CORTEX_MASTER_KEY",
+        "CORTEX_ROOT", "CORTEX_SECRETS_DIR", "CORTEX_DATA_ROOT", "CORTEX_PUBLIC_URL",
+        "CORTEX_ADMIN_USER", "CORTEX_HARNESS_HOME", "CORTEX_BACKUP_ROOT", "HOST", "PORT", "NODE_ENV"
+      ],
+      "secret_owner": "installer/provision.py",
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": "http://127.0.0.1:3080",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "core",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:3080/"
+      }
+    },
+    {
+      "id": "caddy",
+      "title": "Caddy",
+      "description": "Private ingress; no unauthenticated public forwarding.",
+      "depends_on": [
+        "dashboard"
+      ],
+      "conflicts": [],
+      "ports": [
+        8080
+      ],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": "http://127.0.0.1:8080",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "script",
+      "recipe": "scripts/network/caddy.py",
+      "verify": {
+        "type": "tcp",
+        "port": 8080
+      }
+    },
+    {
+      "id": "tailscale",
+      "title": "Tailscale",
+      "description": "Private ingress; no unauthenticated public forwarding.",
+      "depends_on": [],
+      "conflicts": [],
+      "ports": [],
+      "secret_keys": ["TAILSCALE_AUTHKEY"],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "secret_defaults": {},
+      "endpoint": null,
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 5
+      },
+      "kind": "script",
+      "recipe": "scripts/network/tailscale.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "tailscale", "status", "--json"
+        ]
+      }
+    }
+  ]
+}

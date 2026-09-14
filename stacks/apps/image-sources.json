@@ -1,0 +1,196 @@
+{
+  "retrieved_on": "2026-09-14",
+  "method": "OCI registry manifest GET; Docker-Content-Digest response header, or SHA256 of exact manifest response bytes when absent",
+  "hindsight_ui_guard_image_source": {
+    "key": "HINDSIGHT_UI_GUARD_IMAGE",
+    "image": "nginx@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c",
+    "same_registry_manifest_as": "DOCKHAND_PROXY_IMAGE"
+  },
+  "dockhand_bind_source_evidence": {
+    "image": "fnsys/dockhand@sha256:63ffc7dd086f5d10506ccf488bcb30ce40401975212fcc1bed9ec891243c9fb4",
+    "config_digest": "sha256:0af4a1f7368681b0619e685014d5d55f8fdfa1d56c27c1ec78b405e7bd011f58",
+    "source_layer": "sha256:6711908727de19bd0ead9a3030dec619e2581573d41d363e09b33c73d45ac298",
+    "layer_bytes": 7813,
+    "file": "app/server.js",
+    "host_line": {"line": 35, "text": "const HOST = process.env.HOST || '0.0.0.0';"},
+    "listen_line": {"line": 785, "text": "server.listen(PORT, HOST, () => {"},
+    "retrieval": "Read one immutable OCI source layer in memory; no Docker pull, extraction to disk, execution or runtime validation."
+  },
+  "hindsight_source_evidence": {
+    "architecture": "amd64",
+    "platform_manifest": "sha256:e34028bf84b5bc800029e5d3b13db2c469484dfe5b557b84c577d97fd6af1c74",
+    "config_digest": "sha256:e7815cac45c526ebc09d44b94574f9a93a8646c464aaf7a9bf63d8f6d49b9fcb",
+    "source_revision": "5d46f9c8c8eb4fb96f549aa63abe1191b82a7840",
+    "version": "0.10.0",
+    "source": "https://github.com/vectorize-io/hindsight/tree/5d46f9c8c8eb4fb96f549aa63abe1191b82a7840"
+  },
+  "minio_native_entrypoint_evidence": {
+    "architecture": "amd64",
+    "manifest_digest": "sha256:f147b779e611d5587f471bdd20658139fb0e321188fbcadd579601aa185da2d9",
+    "config_digest": "sha256:916a1994eceda01fd735406589d3d5761ab3e493ba6b75a92b2a1027d69248b1",
+    "entrypoint": ["/usr/bin/minio"],
+    "user": "65532",
+    "source": "https://cgr.dev/v2/chainguard/minio/blobs/sha256:916a1994eceda01fd735406589d3d5761ab3e493ba6b75a92b2a1027d69248b1",
+    "recipe_policy": "Native server only; prepare bucket on host, use host HTTP readiness, assume no sh/id/mc in image."
+  },
+  "images": {
+    "DOCKHAND_PROXY_IMAGE": {
+      "source_tag": "nginx:stable-alpine",
+      "image": "nginx@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/nginx/manifests/stable-alpine",
+      "media_type": "application/vnd.oci.image.index.v1+json",
+      "upstream_user_source": "https://github.com/nginx/docker-nginx/blob/master/stable/alpine-slim/Dockerfile",
+      "authentication_source": "https://nginx.org/en/docs/http/ngx_http_auth_basic_module.html"
+    },
+    "OLLAMA_IMAGE": {
+      "source_tag": "ollama/ollama:latest",
+      "image": "ollama/ollama@sha256:684d8674b4315fa18f4f0e973a118ec2652ed96f67563277839985175858e0ba",
+      "registry_manifest": "https://registry-1.docker.io/v2/ollama/ollama/manifests/latest",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "WHISPER_IMAGE": {
+      "source_tag": "onerahmet/openai-whisper-asr-webservice:v1.10.0",
+      "image": "onerahmet/openai-whisper-asr-webservice@sha256:0616c3d5fc6924e9d59aa8a7a3a944fbe8f3a5d701e5fc1fa2ce5b933dfecb73",
+      "registry_manifest": "https://registry-1.docker.io/v2/onerahmet/openai-whisper-asr-webservice/manifests/v1.10.0",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "HINDSIGHT_IMAGE": {
+      "source_tag": "ghcr.io/vectorize-io/hindsight:latest",
+      "image": "ghcr.io/vectorize-io/hindsight@sha256:3edcb6165cefdeaa6721dd0fce43cfd13b7a9c346ce0d2c5f4b4bf7bc3c8ac0b",
+      "registry_manifest": "https://ghcr.io/v2/vectorize-io/hindsight/manifests/latest",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "DURINDOOR_IMAGE": {
+      "source_tag": "ghcr.io/bloodf/durindoor:latest",
+      "image": "ghcr.io/bloodf/durindoor@sha256:3a0d859d1129028d12b1bd18c5b68a64faf457fba6a349fc5b59f0beb01a9ee3",
+      "registry_manifest": "https://ghcr.io/v2/bloodf/durindoor/manifests/latest",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "JELLYFIN_IMAGE": {
+      "source_tag": "jellyfin/jellyfin:latest",
+      "image": "jellyfin/jellyfin@sha256:baba630419915985442f315f08b0cf46d9f4c8a0cc4bd38e94a6d35751dd5ef5",
+      "registry_manifest": "https://registry-1.docker.io/v2/jellyfin/jellyfin/manifests/latest",
+      "media_type": "application/vnd.docker.distribution.manifest.list.v2+json"
+    },
+    "HOME_ASSISTANT_IMAGE": {
+      "source_tag": "ghcr.io/home-assistant/home-assistant:stable",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:a1bc133af84ee6505fe2c266d9805b7c75b780dfdc188edfee3b11e8f3cd8efe",
+      "registry_manifest": "https://ghcr.io/v2/home-assistant/home-assistant/manifests/stable",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "DOCKHAND_IMAGE": {
+      "source_tag": "fnsys/dockhand:latest",
+      "image": "fnsys/dockhand@sha256:63ffc7dd086f5d10506ccf488bcb30ce40401975212fcc1bed9ec891243c9fb4",
+      "registry_manifest": "https://registry-1.docker.io/v2/fnsys/dockhand/manifests/latest",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "FIRECRAWL_IMAGE": {
+      "source_tag": "ghcr.io/firecrawl/firecrawl:latest",
+      "image": "ghcr.io/firecrawl/firecrawl@sha256:780592f58b4a99beee4424f1acadacf34bcefb02d5893f4bd1a9cb2554bf0a19",
+      "registry_manifest": "https://ghcr.io/v2/firecrawl/firecrawl/manifests/latest",
+      "media_type": "application/vnd.docker.distribution.manifest.list.v2+json"
+    },
+    "FIRECRAWL_PLAYWRIGHT_IMAGE": {
+      "source_tag": "ghcr.io/firecrawl/playwright-service:latest",
+      "image": "ghcr.io/firecrawl/playwright-service@sha256:df1a393ce8bfc3801570a826a9b0dcc400ae48789adb4a0ad9d6cbf0229b059b",
+      "registry_manifest": "https://ghcr.io/v2/firecrawl/playwright-service/manifests/latest",
+      "media_type": "application/vnd.docker.distribution.manifest.list.v2+json"
+    },
+    "FIRECRAWL_POSTGRES_IMAGE": {
+      "source_tag": "ghcr.io/firecrawl/nuq-postgres:latest",
+      "image": "ghcr.io/firecrawl/nuq-postgres@sha256:aed86f62858f29bd971abddcdeb301c12888098d2cf5d33c1ba42b053bc460f6",
+      "registry_manifest": "https://ghcr.io/v2/firecrawl/nuq-postgres/manifests/latest",
+      "media_type": "application/vnd.docker.distribution.manifest.list.v2+json"
+    },
+    "FIRECRAWL_REDIS_IMAGE": {
+      "source_tag": "redis:8-alpine",
+      "image": "redis@sha256:becdda6c7f4b3fb42e42fd7f120bbf5c54c4caaaf16f26da24e4563d2c1f0576",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/redis/manifests/8-alpine",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "FIRECRAWL_RABBITMQ_IMAGE": {
+      "source_tag": "rabbitmq:3-management",
+      "image": "rabbitmq@sha256:e582c0bc7766f3342496d8485efb5a1df782b5ce3886ad017e2eaae442311f69",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/rabbitmq/manifests/3-management",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "POSTIZ_IMAGE": {
+      "source_tag": "ghcr.io/gitroomhq/postiz-app:latest",
+      "image": "ghcr.io/gitroomhq/postiz-app@sha256:785f97312f66a347fb96cdccc4ded5a33ced69a672c89a9adc8054e7d6a21dc5",
+      "registry_manifest": "https://ghcr.io/v2/gitroomhq/postiz-app/manifests/latest",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "POSTIZ_POSTGRES_IMAGE": {
+      "source_tag": "postgres:17-alpine",
+      "image": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/postgres/manifests/17-alpine",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "POSTIZ_REDIS_IMAGE": {
+      "source_tag": "redis:7.2",
+      "image": "redis@sha256:74566c6910d13ae61e7ce73ebd3127438a1fe805b309b097c323142719ec8a5b",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/redis/manifests/7.2",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "POSTIZ_TEMPORAL_IMAGE": {
+      "source_tag": "temporalio/auto-setup:1.28.1",
+      "image": "temporalio/auto-setup@sha256:607d68caa111338d754771efb876c92dfcdae06d056e4530bb31cd0f37406e6a",
+      "registry_manifest": "https://registry-1.docker.io/v2/temporalio/auto-setup/manifests/1.28.1",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "POSTIZ_TEMPORAL_POSTGRES_IMAGE": {
+      "source_tag": "postgres:16",
+      "image": "postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/postgres/manifests/16",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "POSTIZ_ELASTICSEARCH_IMAGE": {
+      "source_tag": "elasticsearch:7.17.27",
+      "image": "elasticsearch@sha256:9a6443f55243f6acbfeb4a112d15eb3b9aac74bf25e0e39fa19b3ddd3a6879d0",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/elasticsearch/manifests/7.17.27",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "LANGFUSE_IMAGE": {
+      "source_tag": "docker.langfuse.com/langfuse/langfuse:4",
+      "image": "docker.langfuse.com/langfuse/langfuse@sha256:b0556ab389af97d861185323e6dbd410464bb2b1669bd819251cb3635c291c07",
+      "registry_manifest": "https://docker.langfuse.com/v2/langfuse/langfuse/manifests/4",
+      "media_type": "application/vnd.docker.distribution.manifest.list.v2+json"
+    },
+    "LANGFUSE_WORKER_IMAGE": {
+      "source_tag": "docker.langfuse.com/langfuse/langfuse-worker:4",
+      "image": "docker.langfuse.com/langfuse/langfuse-worker@sha256:25212a931e27f5d8a87cb25c81b5ccdb9f239655c1d9efb54a4378ded32c2c9e",
+      "registry_manifest": "https://docker.langfuse.com/v2/langfuse/langfuse-worker/manifests/4",
+      "media_type": "application/vnd.docker.distribution.manifest.list.v2+json"
+    },
+    "LANGFUSE_POSTGRES_IMAGE": {
+      "source_tag": "postgres:17",
+      "image": "postgres@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/postgres/manifests/17",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "LANGFUSE_CLICKHOUSE_IMAGE": {
+      "source_tag": "clickhouse/clickhouse-server:25.12",
+      "image": "clickhouse/clickhouse-server@sha256:8a790dd3468db22b1d4e7b18a176f378ff5ff6053b9c48dd4ea1fa71a24c5ba6",
+      "registry_manifest": "https://registry-1.docker.io/v2/clickhouse/clickhouse-server/manifests/25.12",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "LANGFUSE_REDIS_IMAGE": {
+      "source_tag": "redis:7",
+      "image": "redis@sha256:71da9275c5f3fcb97d0fa0c8c5b36cc995327265420f17a04bfd544f458059f7",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/redis/manifests/7",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "LANGFUSE_MINIO_IMAGE": {
+      "source_tag": "cgr.dev/chainguard/minio:latest",
+      "image": "cgr.dev/chainguard/minio@sha256:ad4a4c0a39ad7b71408124fe3df07b1b2e9d2959a369fac8754d2ef3311b5c20",
+      "registry_manifest": "https://cgr.dev/v2/chainguard/minio/manifests/latest",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    },
+    "MAIL_GUARDIAN_NODE_IMAGE": {
+      "source_tag": "node:24-bookworm",
+      "image": "node@sha256:6dac556d980b7f0e5498d08f08cee0ca67798b4ad6c23964a9214920e67758d0",
+      "registry_manifest": "https://registry-1.docker.io/v2/library/node/manifests/24-bookworm",
+      "media_type": "application/vnd.oci.image.index.v1+json"
+    }
+  }
+}

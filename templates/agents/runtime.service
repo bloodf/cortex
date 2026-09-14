@@ -1,0 +1,46 @@
+[Unit]
+Description=Cortex isolated runtime @IDENTITY@
+After=network-online.target
+Wants=network-online.target
+
+Requires=cortex-agent-firewall.service
+After=cortex-agent-firewall.service
+[Service]
+Type=simple
+User=@USER@
+Group=@USER@
+WorkingDirectory=@HOME@
+Environment=HOME=@HOME@
+EnvironmentFile=@ENV@
+ExecStartPre=+/usr/bin/python3 -I @ROOT@/scripts/agents/egress_proof.py --attest-unit /etc/systemd/system/@IDENTITY@.service
+ExecStartPre=/usr/bin/python3 -I @ROOT@/scripts/agents/confinement.py --unit /etc/systemd/system/@IDENTITY@.service @PROBE_PORTS@
+ExecStart=@COMMAND@
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=45
+UMask=0077
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=@HOME@
+InaccessiblePaths=/etc/cortex -/var/lib/incus -/run/docker.sock -/run/incus
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SocketBindDeny=any
+@BIND_ALLOWS@
+MemoryMax=4G
+TasksMax=512
+
+[Install]
+WantedBy=multi-user.target

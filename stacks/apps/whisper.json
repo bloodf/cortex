@@ -1,0 +1,26 @@
+{
+  "services": {
+    "whisper": {
+      "image": "${WHISPER_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-whisper",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/whisper:/root/.cache"
+      ],
+      "ports": [
+        "127.0.0.1:9000:9000"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/whisper.env"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

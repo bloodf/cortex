@@ -1,0 +1,42 @@
+{
+  "services": {
+    "pgadmin": {
+      "image": "${PGADMIN_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-pgadmin",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:5050:5050"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/postgresql.env",
+        "@SECRETS_DIR@/pgadmin.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "PGADMIN_DISABLE_POSTFIX": "1",
+        "PGADMIN_LISTEN_PORT": "5050",
+        "PGADMIN_LISTEN_ADDRESS": "0.0.0.0",
+        "PGADMIN_SERVER_JSON_FILE": "/cortex/servers.json"
+      },
+      "volumes": [
+        "@DATA_ROOT@/pgadmin:/var/lib/pgadmin",
+        "@DATA_ROOT@/pgadmin-config:/cortex:ro"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

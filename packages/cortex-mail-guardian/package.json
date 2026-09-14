@@ -1,0 +1,44 @@
+{
+  "name": "@cortexos/mail-guardian",
+  "version": "0.1.0",
+  "description": "CortexOS IMAP spam guardian with OpenAI-compatible LLM classification and Cortex Telegram review.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "cortex-mail-guardian": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.110",
+    "ai": "^5.0.209",
+    "mailparser": "^3.9.12",
+    "pg": "^8.22.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^22.20.0",
+    "@types/pg": "^8.20.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.6"
+  }
+}

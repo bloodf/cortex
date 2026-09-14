@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "services": [
+    {
+      "id": "incus",
+      "title": "Incus",
+      "description": "Ubuntu-pinned Incus with restricted NAT development containers or VMs, coding tools and opt-in key-only SSH.",
+      "depends_on": [],
+      "ports": [],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/incus.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/incus.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      }
+    },
+    {
+      "id": "hermes",
+      "title": "Hermes Agent",
+      "description": "Automatically installs immutable Hermes source and frozen dependencies; only manifest-named agents are created.",
+      "depends_on": [],
+      "ports": [],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/hermes.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/hermes.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      }
+    },
+    {
+      "id": "openclaw",
+      "title": "OpenClaw",
+      "description": "Automatically installs integrity-verified OpenClaw and private pinned Node; no default model or identity.",
+      "depends_on": [],
+      "ports": [],
+      "secret_keys": [],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/openclaw.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/openclaw.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      }
+    },
+    {
+      "id": "sandbox-runner",
+      "title": "Sandbox runner",
+      "description": "Authenticated loopback execution API using networkless rootless Podman and gVisor, without privileged fallback.",
+      "depends_on": [],
+      "ports": [
+        8091
+      ],
+      "secret_keys": [
+        "CORTEX_SANDBOX_API_TOKEN",
+        "PODMAN_VERSION",
+        "SANDBOX_IMAGE"
+      ],
+      "generated_secrets": [
+        "CORTEX_SANDBOX_API_TOKEN"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8091",
+      "resources": {
+        "memory_mb": 4096,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/sandbox-runner.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/sandbox-runner.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      },
+      "secret_defaults": {
+        "PODMAN_VERSION": "5.7.0+ds2-3build1",
+        "SANDBOX_IMAGE": "docker.io/library/alpine@sha256:14358309a308569c32bdc37e2e0e9694be33a9d99e68afb0f5ff33cc1f695dce"
+      }
+    },
+    {
+      "id": "kernel-browser",
+      "title": "Kernel browser",
+      "description": "Browserless Chromium automation with authenticated API and loopback-only publication.",
+      "depends_on": [],
+      "ports": [
+        3333
+      ],
+      "secret_keys": [
+        "KERNEL_BROWSER_IMAGE",
+        "TOKEN"
+      ],
+      "generated_secrets": [
+        "TOKEN"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:3333",
+      "resources": {
+        "memory_mb": 2048,
+        "cpu_cores": 2,
+        "disk_gb": 20
+      },
+      "kind": "script",
+      "recipe": "scripts/agents/kernel-browser.py",
+      "verify": {
+        "type": "command",
+        "command": [
+          "python3",
+          "@ROOT@/scripts/agents/kernel-browser.py",
+          "verify",
+          "--manifest",
+          "/etc/cortex/install.json"
+        ]
+      },
+      "secret_defaults": {
+        "KERNEL_BROWSER_IMAGE": "ghcr.io/browserless/chromium@sha256:ae07025606e03c9b263620aaf4d09c52728f71a104ac7d471a68c23dec72c05f"
+      }
+    }
+  ]
+}

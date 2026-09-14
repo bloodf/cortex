@@ -1,0 +1,39 @@
+{
+  "services": {
+    "redisinsight": {
+      "image": "${REDISINSIGHT_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-redisinsight",
+      "restart": "unless-stopped",
+      "network_mode": "service:redisinsight-gateway",
+      "environment": {
+        "RI_REDIS_HOST": "cortex-redis",
+        "RI_REDIS_PORT": "6379",
+        "RI_REDIS_ALIAS": "Cortex Redis",
+        "RI_REDIS_PASSWORD": "${REDIS_PASSWORD:?required}",
+        "RI_ENCRYPTION_KEY": "${RI_ENCRYPTION_KEY:?required}",
+        "RI_ACCEPT_TERMS_AND_CONDITIONS": "${RI_ACCEPT_TERMS_AND_CONDITIONS:?required}",
+        "RI_APP_HOST": "127.0.0.1"
+      },
+      "volumes": ["@DATA_ROOT@/redisinsight:/data"],
+      "logging": {"driver": "json-file", "options": {"max-size": "10m", "max-file": "3"}}
+    },
+    "redisinsight-gateway": {
+      "image": "${REDISINSIGHT_PROXY_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-redisinsight-gateway",
+      "restart": "unless-stopped",
+      "user": "0:0",
+      "entrypoint": ["haproxy"],
+      "command": ["-W", "-db", "-f", "/usr/local/etc/haproxy/haproxy.cfg"],
+      "read_only": true,
+      "cap_drop": ["ALL"],
+      "security_opt": ["no-new-privileges:true"],
+      "networks": ["cortex-private"],
+      "ports": ["127.0.0.1:5540:5541"],
+      "volumes": ["@DATA_ROOT@/redisinsight-gateway:/usr/local/etc/haproxy:ro"],
+      "logging": {"driver": "json-file", "options": {"max-size": "10m", "max-file": "3"}}
+    }
+  },
+  "networks": {
+    "cortex-private": {"external": true, "name": "cortex-private"}
+  }
+}

@@ -1,0 +1,21 @@
+# Guided Cortex installation — any terminal coding agent
+
+Paste the following into a terminal agent that can read the reviewed Cortex checkout and run commands on the **new target server**. It is not specific to an AI vendor, IDE or model. The real installer remains usable without an agent.
+
+```text
+Help me install Cortex on a fresh Ubuntu 26.04 LTS server using this reviewed repository's real Python CLI, not by inventing shell recipes. Read docs/INSTALL.md, docs/CONFIGURATION.md and docs/SERVICES.md before acting. Confirm the target server and source checkout path using read-only inspection. Do not touch an existing CortexOS/Cortex deployment or any other host. Do not push repository changes.
+
+Ask one bounded decision at a time. Explain the default and its relevant tradeoff, wait for my answer, and carry that answer forward. Establish dedicated empty application/data directories, my existing human Linux login, desired hostname/timezone, local SSH-tunnel versus my own Tailscale origin, optional services and their dependencies/resources/licenses, agent names/runtimes/model IDs/channels, optional development environments, and backup/update policy. No optional service, agent, channel, VM, inference provider, GPU driver or public endpoint is selected without my choice. Do not dump the entire questionnaire into chat. You can run `sudo python3 bin/cortex interview --manifest /etc/cortex/install.json` in an interactive terminal; otherwise help me prepare the exact documented non-secret JSON locally, one decision at a time.
+
+Never request, read aloud, copy, capture or paste passwords, tokens, API keys, secret environment files, private logs, existing profiles or provider sessions. Tell me which protected local setup action or file is required, then let me complete it directly outside the agent transcript. Existing Linux password setup uses passwd locally. Never put credentials into the manifest, command arguments, a prompt, Git or a diagnostic report. Do not read /etc/cortex/last-failure.log through your logging tools; ask me for a redacted summary if a command fails.
+
+Run `sudo python3 bin/cortex validate --manifest /etc/cortex/install.json` and `sudo python3 bin/cortex plan --manifest /etc/cortex/install.json`. Explain the exact dependency-expanded services, operations, privileged-root dashboard trust boundary, storage/network effects and known integration prerequisites. Installation is a real host mutation: wait for my explicit approval of that exact plan. Never infer approval from this prompt, my earlier service choices or a broad request to install.
+
+Only after I approve, run `sudo python3 bin/cortex apply --manifest /etc/cortex/install.json --approve EXACT_REVIEWED_APPROVAL_HASH`, using the actual hash returned by the plan, not the placeholder. Stop if the manifest, catalog or source changes; generate a new plan and obtain new approval. Never bypass fresh-host checks, delete ownership state, format a disk, rewrite a host bridge, open public ingress, enroll a private account or disable security controls to get past an error. An existing deployment is a stop condition, not permission to migrate it.
+
+Then run `sudo python3 bin/cortex verify --manifest /etc/cortex/install.json`. Help me open the dashboard through my selected access method and log in directly with my Linux account. Verify selected integrations using their documented real workflows, without reading secrets or claiming an HTTP response proves model calls, message delivery, backups/restores, GPU support or kernel isolation. Report exactly what was exercised and any blocked external account step. For an interruption, use the same manifest and a newly reviewed current plan; never trust a completion marker or force adoption of a different install.
+
+Done means the approved CLI apply and verify succeeded and the chosen interactive/account-dependent checks are either actually exercised or explicitly reported as awaiting my local action. Do not replace failed implementation with a checklist or claim a prompts-only installation is complete.
+```
+
+This prompt is for an agentic tool with real system access. Review the scope locks, forbidden actions, and stop conditions before pasting. Confirm file paths, directories, and permissions match the actual project.

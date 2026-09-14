@@ -1,0 +1,29 @@
+{
+  "services": {
+    "ollama": {
+      "image": "${OLLAMA_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-ollama",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "environment": {
+        "OLLAMA_HOST": "0.0.0.0:11434"
+      },
+      "volumes": [
+        "@DATA_ROOT@/ollama:/root/.ollama"
+      ],
+      "ports": [
+        "127.0.0.1:11434:11434"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/ollama.env"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "cortex-monorepo",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present run test",
+    "build": "pnpm -r --if-present run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.4",
+    "@honcho-ai/sdk": "^2.1.2",
+    "@lobehub/i18n-cli": "^1.27.0",
+    "@stylistic/eslint-plugin": "5.10.0",
+    "eslint": "9.39.4",
+    "eslint-config-airbnb-extended": "3.1.0",
+    "eslint-plugin-import-x": "4.16.2",
+    "eslint-plugin-n": "17.24.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "17.6.0",
+    "prettier": "3.8.4",
+    "prettier-plugin-tailwindcss": "0.8.0",
+    "typescript-eslint": "8.61.0"
+  }
+}

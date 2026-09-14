@@ -1,0 +1,38 @@
+{
+  "services": {
+    "loki": {
+      "image": "${LOKI_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-loki",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:3100:3100"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/loki.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "command": [
+        "-config.file=/etc/loki/cortex.json"
+      ],
+      "volumes": [
+        "@ROOT@/stacks/observability/loki.json:/etc/loki/cortex.json:ro",
+        "@DATA_ROOT@/loki:/loki"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "services": {
+    "cadvisor": {
+      "image": "${CADVISOR_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-cadvisor",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:8085:8080"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/cadvisor.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "privileged": true,
+      "devices": [
+        "/dev/kmsg:/dev/kmsg"
+      ],
+      "command": [
+        "--docker_only=true",
+        "--housekeeping_interval=30s",
+        "--store_container_labels=false"
+      ],
+      "volumes": [
+        "/:/rootfs:ro",
+        "/var/run:/var/run:ro",
+        "/sys:/sys:ro",
+        "/var/lib/docker:/var/lib/docker:ro",
+        "/dev/disk:/dev/disk:ro"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

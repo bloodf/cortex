@@ -1,0 +1,54 @@
+{
+  "services": {
+    "hindsight": {
+      "image": "${HINDSIGHT_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-hindsight",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/hindsight:/home/hindsight/.pg0"
+      ],
+      "ports": [
+        "127.0.0.1:19888:8888",
+        "127.0.0.1:9999:19999"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/hindsight.env"
+      ],
+      "environment": {
+        "HINDSIGHT_ENABLE_CP": "true",
+        "HINDSIGHT_CP_HOSTNAME": "127.0.0.1",
+        "HINDSIGHT_CP_PORT": "9999",
+        "HINDSIGHT_CP_DATAPLANE_API_URL": "http://127.0.0.1:8888",
+        "HINDSIGHT_API_TENANT_EXTENSION": "hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension",
+        "HINDSIGHT_API_TENANT_MCP_AUTH_DISABLED": "false"
+      },
+      "shm_size": "1gb"
+    },
+    "hindsight-ui-guard": {
+      "image": "${HINDSIGHT_UI_GUARD_IMAGE:?immutable UI guard default missing}",
+      "container_name": "cortex-hindsight-ui-guard",
+      "network_mode": "service:hindsight",
+      "depends_on": {"hindsight": {"condition": "service_started", "restart": true}},
+      "restart": "unless-stopped",
+      "user": "101:101",
+      "read_only": true,
+      "cap_drop": ["ALL"],
+      "security_opt": ["no-new-privileges:true"],
+      "entrypoint": ["nginx"],
+      "command": ["-g", "daemon off;"],
+      "volumes": [
+        "@ROOT@/templates/memory/ui-nginx.conf:/etc/nginx/nginx.conf:ro",
+        "@DATA_ROOT@/hindsight-ui-auth:/auth:ro"
+      ],
+      "tmpfs": ["/tmp:rw,noexec,nosuid,size=128m,uid=101,gid=101"]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

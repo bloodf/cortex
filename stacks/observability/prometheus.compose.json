@@ -1,0 +1,42 @@
+{
+  "services": {
+    "prometheus": {
+      "image": "${PROMETHEUS_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-prometheus",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:9090:9090"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/prometheus.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "command": [
+        "--config.file=/etc/prometheus/prometheus.json",
+        "--storage.tsdb.path=/prometheus",
+        "--storage.tsdb.retention.time=15d",
+        "--storage.tsdb.retention.size=15GB"
+      ],
+      "volumes": [
+        "@ROOT@/stacks/observability/prometheus.json:/etc/prometheus/prometheus.json:ro",
+        "@DATA_ROOT@/prometheus-config:/etc/prometheus/targets:ro",
+        "@DATA_ROOT@/prometheus:/prometheus"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

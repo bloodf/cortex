@@ -1,0 +1,74 @@
+{
+  "name": "@cortexos/contracts",
+  "version": "0.1.0",
+  "description": "Shared typed contracts + Zod schemas for all CortexOS dashboard entities. The single source of truth for the wire shape between client and server.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./primitives": {
+      "types": "./dist/primitives.d.ts",
+      "default": "./dist/primitives.js"
+    },
+    "./query": {
+      "types": "./dist/query.d.ts",
+      "default": "./dist/query.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "default": "./dist/errors.js"
+    },
+    "./audit": {
+      "browser": "./dist/audit.browser.js",
+      "types": "./dist/audit.d.ts",
+      "default": "./dist/audit.js"
+    },
+    "./approval": {
+      "browser": "./dist/approval.browser.js",
+      "types": "./dist/approval.d.ts",
+      "default": "./dist/approval.js"
+    },
+    "./entities": {
+      "types": "./dist/entities/index.d.ts",
+      "default": "./dist/entities/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.ts",
+      "default": "./dist/schemas/index.js"
+    },
+    "./schemas/json": "./dist/schemas-json/index.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/build-json-schemas.mjs",
+    "build:json": "node scripts/build-json-schemas.mjs",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9",
+    "zod-to-json-schema": "^3.25.2"
+  }
+}

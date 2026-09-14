@@ -1,0 +1,32 @@
+{
+  "services": {
+    "durindoor": {
+      "image": "${DURINDOOR_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-durindoor",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "environment": {
+        "DATA_DIR": "/app/data",
+        "PORT": "20128",
+        "HOSTNAME": "0.0.0.0",
+        "NODE_ENV": "production"
+      },
+      "volumes": [
+        "@DATA_ROOT@/durindoor:/app/data"
+      ],
+      "ports": [
+        "127.0.0.1:20128:20128"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/durindoor.env"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

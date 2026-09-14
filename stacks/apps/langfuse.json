@@ -1,0 +1,237 @@
+{
+  "services": {
+    "langfuse": {
+      "image": "${LANGFUSE_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-langfuse",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private",
+        "backend"
+      ],
+      "ports": [
+        "127.0.0.1:3035:3000"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/langfuse.env"
+      ],
+      "environment": {
+        "HOSTNAME": "0.0.0.0",
+        "DATABASE_URL": "postgresql://langfuse:${POSTGRES_PASSWORD}@cortex-langfuse-postgres:5432/langfuse",
+        "CLICKHOUSE_MIGRATION_URL": "clickhouse://cortex-langfuse-clickhouse:9000",
+        "CLICKHOUSE_URL": "http://cortex-langfuse-clickhouse:8123",
+        "CLICKHOUSE_USER": "langfuse",
+        "CLICKHOUSE_PASSWORD": "${CLICKHOUSE_PASSWORD}",
+        "CLICKHOUSE_CLUSTER_ENABLED": "false",
+        "REDIS_HOST": "cortex-langfuse-redis",
+        "REDIS_PORT": "6379",
+        "REDIS_AUTH": "${REDIS_AUTH}",
+        "REDIS_TLS_ENABLED": "false",
+        "TELEMETRY_ENABLED": "false",
+        "LANGFUSE_S3_EVENT_UPLOAD_BUCKET": "langfuse",
+        "LANGFUSE_S3_EVENT_UPLOAD_REGION": "auto",
+        "LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID": "langfuse",
+        "LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY": "${MINIO_ROOT_PASSWORD}",
+        "LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT": "http://cortex-langfuse-minio:9000",
+        "LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE": "true",
+        "LANGFUSE_S3_EVENT_UPLOAD_PREFIX": "events/",
+        "LANGFUSE_S3_MEDIA_UPLOAD_BUCKET": "langfuse",
+        "LANGFUSE_S3_MEDIA_UPLOAD_REGION": "auto",
+        "LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID": "langfuse",
+        "LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY": "${MINIO_ROOT_PASSWORD}",
+        "LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT": "${LANGFUSE_MEDIA_URL:-http://localhost:9095}",
+        "LANGFUSE_S3_MEDIA_UPLOAD_INTERNAL_ENDPOINT": "http://cortex-langfuse-minio:9000",
+        "LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE": "true",
+        "LANGFUSE_S3_MEDIA_UPLOAD_PREFIX": "media/"
+      },
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        },
+        "redis": {
+          "condition": "service_healthy"
+        },
+        "clickhouse": {
+          "condition": "service_healthy"
+        },
+        "minio": {
+          "condition": "service_started"
+        }
+      }
+    },
+    "postgres": {
+      "image": "${LANGFUSE_POSTGRES_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-langfuse-postgres",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "POSTGRES_USER": "langfuse",
+        "POSTGRES_DB": "langfuse",
+        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD}"
+      },
+      "volumes": [
+        "@DATA_ROOT@/langfuse/postgres:/var/lib/postgresql/data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "langfuse",
+          "-d",
+          "langfuse"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    },
+    "redis": {
+      "image": "${LANGFUSE_REDIS_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-langfuse-redis",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/langfuse/redis:/data"
+      ],
+      "command": [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction",
+        "--requirepass",
+        "${REDIS_AUTH}"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "redis-cli",
+          "-a",
+          "${REDIS_AUTH}",
+          "ping"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    },
+    "clickhouse": {
+      "image": "${LANGFUSE_CLICKHOUSE_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-langfuse-clickhouse",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "CLICKHOUSE_DB": "default",
+        "CLICKHOUSE_USER": "langfuse",
+        "CLICKHOUSE_PASSWORD": "${CLICKHOUSE_PASSWORD}"
+      },
+      "volumes": [
+        "@DATA_ROOT@/langfuse/clickhouse-data:/var/lib/clickhouse",
+        "@DATA_ROOT@/langfuse/clickhouse-logs:/var/log/clickhouse-server"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--spider",
+          "http://localhost:8123/ping"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      },
+      "user": "101:101"
+    },
+    "minio": {
+      "image": "${LANGFUSE_MINIO_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-langfuse-minio",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private",
+        "backend"
+      ],
+      "environment": {
+        "MINIO_ROOT_USER": "langfuse",
+        "MINIO_ROOT_PASSWORD": "${MINIO_ROOT_PASSWORD}"
+      },
+      "volumes": [
+        "@DATA_ROOT@/langfuse/minio:/data"
+      ],
+      "ports": [
+        "127.0.0.1:9095:9000"
+      ],
+      "user": "65532:65532",
+      "entrypoint": ["/usr/bin/minio"],
+      "command": ["server", "--address", ":9000", "/data"]
+    },
+    "worker": {
+      "image": "${LANGFUSE_WORKER_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-langfuse-worker",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private",
+        "backend"
+      ],
+      "environment": {
+        "DATABASE_URL": "postgresql://langfuse:${POSTGRES_PASSWORD}@cortex-langfuse-postgres:5432/langfuse",
+        "CLICKHOUSE_MIGRATION_URL": "clickhouse://cortex-langfuse-clickhouse:9000",
+        "CLICKHOUSE_URL": "http://cortex-langfuse-clickhouse:8123",
+        "CLICKHOUSE_USER": "langfuse",
+        "CLICKHOUSE_PASSWORD": "${CLICKHOUSE_PASSWORD}",
+        "CLICKHOUSE_CLUSTER_ENABLED": "false",
+        "REDIS_HOST": "cortex-langfuse-redis",
+        "REDIS_PORT": "6379",
+        "REDIS_AUTH": "${REDIS_AUTH}",
+        "REDIS_TLS_ENABLED": "false",
+        "TELEMETRY_ENABLED": "false",
+        "LANGFUSE_S3_EVENT_UPLOAD_BUCKET": "langfuse",
+        "LANGFUSE_S3_EVENT_UPLOAD_REGION": "auto",
+        "LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID": "langfuse",
+        "LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY": "${MINIO_ROOT_PASSWORD}",
+        "LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT": "http://cortex-langfuse-minio:9000",
+        "LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE": "true",
+        "LANGFUSE_S3_EVENT_UPLOAD_PREFIX": "events/",
+        "LANGFUSE_S3_MEDIA_UPLOAD_BUCKET": "langfuse",
+        "LANGFUSE_S3_MEDIA_UPLOAD_REGION": "auto",
+        "LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID": "langfuse",
+        "LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY": "${MINIO_ROOT_PASSWORD}",
+        "LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT": "http://cortex-langfuse-minio:9000",
+        "LANGFUSE_S3_MEDIA_UPLOAD_INTERNAL_ENDPOINT": "http://cortex-langfuse-minio:9000",
+        "LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE": "true",
+        "LANGFUSE_S3_MEDIA_UPLOAD_PREFIX": "media/"
+      },
+      "env_file": [
+        "@SECRETS_DIR@/langfuse.env"
+      ],
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        },
+        "redis": {
+          "condition": "service_healthy"
+        },
+        "clickhouse": {
+          "condition": "service_healthy"
+        },
+        "minio": {
+          "condition": "service_started"
+        }
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    },
+    "backend": {
+      "internal": true
+    }
+  }
+}

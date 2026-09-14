@@ -1,0 +1,168 @@
+{
+  "services": {
+    "firecrawl": {
+      "image": "${FIRECRAWL_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-firecrawl",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private",
+        "backend"
+      ],
+      "ports": [
+        "127.0.0.1:3002:3002"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/firecrawl.env"
+      ],
+      "environment": {
+        "HOST": "0.0.0.0",
+        "PORT": "3002",
+        "ENV": "local",
+        "USE_DB_AUTHENTICATION": "false",
+        "REDIS_URL": "redis://cortex-firecrawl-redis:6379",
+        "REDIS_RATE_LIMIT_URL": "redis://cortex-firecrawl-redis:6379",
+        "PLAYWRIGHT_MICROSERVICE_URL": "http://cortex-firecrawl-playwright:3000/scrape",
+        "POSTGRES_HOST": "cortex-firecrawl-postgres",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_USER": "firecrawl",
+        "POSTGRES_DB": "firecrawl",
+        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD}",
+        "NUQ_RABBITMQ_URL": "amqp://firecrawl:${RABBITMQ_DEFAULT_PASS}@cortex-firecrawl-rabbitmq:5672",
+        "NUM_WORKERS_PER_QUEUE": "2",
+        "CRAWL_CONCURRENT_REQUESTS": "5",
+        "MAX_CONCURRENT_JOBS": "3",
+        "BROWSER_POOL_SIZE": "3"
+      },
+      "command": [
+        "node",
+        "dist/src/harness.js",
+        "--start-docker"
+      ],
+      "mem_limit": "8g",
+      "cpus": 4,
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        },
+        "redis": {
+          "condition": "service_healthy"
+        },
+        "rabbitmq": {
+          "condition": "service_healthy"
+        },
+        "playwright": {
+          "condition": "service_started"
+        }
+      }
+    },
+    "postgres": {
+      "image": "${FIRECRAWL_POSTGRES_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-firecrawl-postgres",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "POSTGRES_USER": "firecrawl",
+        "POSTGRES_DB": "firecrawl",
+        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD}"
+      },
+      "volumes": [
+        "@DATA_ROOT@/firecrawl/postgres:/var/lib/postgresql/data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "firecrawl",
+          "-d",
+          "firecrawl"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      },
+      "command": [
+        "postgres",
+        "-c",
+        "cron.database_name=firecrawl"
+      ]
+    },
+    "redis": {
+      "image": "${FIRECRAWL_REDIS_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-firecrawl-redis",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/firecrawl/redis:/data"
+      ],
+      "command": [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ],
+        "interval": "5s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    },
+    "playwright": {
+      "image": "${FIRECRAWL_PLAYWRIGHT_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-firecrawl-playwright",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "PORT": "3000"
+      },
+      "mem_limit": "4g",
+      "init": true
+    },
+    "rabbitmq": {
+      "image": "${FIRECRAWL_RABBITMQ_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-firecrawl-rabbitmq",
+      "restart": "unless-stopped",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "RABBITMQ_DEFAULT_USER": "firecrawl",
+        "RABBITMQ_DEFAULT_PASS": "${RABBITMQ_DEFAULT_PASS}"
+      },
+      "volumes": [
+        "@DATA_ROOT@/firecrawl/rabbitmq:/var/lib/rabbitmq"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "rabbitmq-diagnostics",
+          "-q",
+          "check_running"
+        ],
+        "interval": "5s",
+        "timeout": "10s",
+        "retries": 30
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    },
+    "backend": {
+      "driver": "bridge"
+    }
+  }
+}

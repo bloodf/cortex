@@ -1,0 +1,43 @@
+{
+  "services": {
+    "redis": {
+      "image": "redis:8.2.1-alpine@sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232",
+      "container_name": "cortex-redis",
+      "restart": "unless-stopped",
+      "env_file": [
+        "@SECRETS_DIR@/redis.env"
+      ],
+      "ports": [
+        "127.0.0.1:6379:6379"
+      ],
+      "volumes": [
+        "@DATA_ROOT@/redis:/data"
+      ],
+      "networks": [
+        "cortex-private"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "command": [
+        "sh",
+        "-ec",
+        "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "REDISCLI_AUTH=\"$${REDIS_PASSWORD}\" redis-cli ping | grep -q PONG"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 30
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

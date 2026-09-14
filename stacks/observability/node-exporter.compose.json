@@ -1,0 +1,51 @@
+{
+  "services": {
+    "node-exporter": {
+      "image": "${NODE_EXPORTER_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-node-exporter",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:9100:9100"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/node-exporter.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "pid": "host",
+      "command": [
+        "--path.rootfs=/host",
+        "--path.procfs=/host/proc",
+        "--path.sysfs=/host/sys",
+        "--collector.disable-defaults",
+        "--collector.cpu",
+        "--collector.diskstats",
+        "--collector.filesystem",
+        "--collector.loadavg",
+        "--collector.meminfo",
+        "--collector.stat",
+        "--collector.time",
+        "--collector.uname",
+        "--collector.vmstat",
+        "--collector.pressure"
+      ],
+      "volumes": [
+        "/:/host:ro,rslave"
+      ]
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

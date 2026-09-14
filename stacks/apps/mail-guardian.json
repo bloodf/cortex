@@ -1,0 +1,36 @@
+{
+  "services": {
+    "mail-guardian": {
+      "image": "${MAIL_GUARDIAN_NODE_IMAGE:?set immutable image reference with sha256 digest}",
+      "container_name": "cortex-mail-guardian",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "environment": {
+        "MAIL_GUARDIAN_ENV_PATH": "/nonexistent/cortex-env",
+        "CORTEX_ROOT": "@ROOT@",
+        "MAIL_GUARDIAN_SCHEMA_MANAGED": "true"
+      },
+      "volumes": [
+        "@ROOT@:@ROOT@:ro",
+        "@DATA_ROOT@/mail-guardian:/var/lib/mail-guardian"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/mail-guardian.env"
+      ],
+      "working_dir": "@ROOT@/packages/cortex-mail-guardian",
+      "command": [
+        "node",
+        "dist/index.js",
+        "listen"
+      ],
+      "init": true
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true
+    }
+  }
+}

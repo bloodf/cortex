@@ -1,0 +1,37 @@
+{
+  "services": {
+    "redis-exporter": {
+      "image": "${REDIS_EXPORTER_IMAGE:?set immutable repository@sha256 reference}",
+      "container_name": "cortex-redis-exporter",
+      "restart": "unless-stopped",
+      "networks": [
+        "cortex-private"
+      ],
+      "ports": [
+        "127.0.0.1:9121:9121"
+      ],
+      "env_file": [
+        "@SECRETS_DIR@/redis.env",
+        "@SECRETS_DIR@/redis-exporter.env"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "environment": {
+        "REDIS_ADDR": "redis://cortex-redis:6379",
+        "REDIS_EXPORTER_DISABLE_SCRAPE_ENDPOINT": "true",
+        "REDIS_EXPORTER_REDACT_CONFIG_METRICS": "true"
+      }
+    }
+  },
+  "networks": {
+    "cortex-private": {
+      "external": true,
+      "name": "cortex-private"
+    }
+  }
+}

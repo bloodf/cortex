@@ -1,0 +1,682 @@
+{
+  "schema_version": 1,
+  "services": [
+    {
+      "id": "prometheus",
+      "title": "Prometheus",
+      "description": "Prometheus private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        9090
+      ],
+      "secret_keys": [
+        "PROMETHEUS_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9090",
+      "resources": {
+        "memory_mb": 2048,
+        "disk_gb": 20,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/prometheus.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9090/-/ready"
+      },
+      "image_repository": "prom/prometheus",
+      "secret_defaults": {
+        "PROMETHEUS_IMAGE": "prom/prometheus@sha256:6976aa8a60fec930796ce5772b8d12da7a318a5daa8d40d69c5c7819a05eeed7"
+      },
+      "runtime_source": {
+        "tag": "v3.13.3",
+        "digest": "sha256:6976aa8a60fec930796ce5772b8d12da7a318a5daa8d40d69c5c7819a05eeed7",
+        "source": "https://hub.docker.com/v2/repositories/prom/prometheus/tags/v3.13.3",
+        "repository": "prom/prometheus",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "arm64",
+          "s390x",
+          "arm",
+          "riscv64"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "grafana",
+      "title": "Grafana",
+      "description": "Grafana private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        3000
+      ],
+      "secret_keys": [
+        "GRAFANA_IMAGE",
+        "GF_SECURITY_ADMIN_PASSWORD",
+        "GF_SECURITY_SECRET_KEY"
+      ],
+      "generated_secrets": [
+        "GF_SECURITY_ADMIN_PASSWORD",
+        "GF_SECURITY_SECRET_KEY"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:3000",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/grafana.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "startup_timeout_seconds": 600,
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:3000/api/health"
+      },
+      "image_repository": "grafana/grafana",
+      "secret_defaults": {
+        "GRAFANA_IMAGE": "grafana/grafana@sha256:a21e4b8b9cd20e9a556dd9e2efd4d81855d4390b507406b0ae11720b71e44ac2"
+      },
+      "runtime_source": {
+        "tag": "13.0.8",
+        "digest": "sha256:a21e4b8b9cd20e9a556dd9e2efd4d81855d4390b507406b0ae11720b71e44ac2",
+        "source": "https://hub.docker.com/v2/repositories/grafana/grafana/tags/13.0.8",
+        "repository": "grafana/grafana",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "loki",
+      "title": "Loki",
+      "description": "Loki private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        3100
+      ],
+      "secret_keys": [
+        "LOKI_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:3100",
+      "resources": {
+        "memory_mb": 1024,
+        "disk_gb": 20,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/loki.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:3100/ready"
+      },
+      "image_repository": "grafana/loki",
+      "secret_defaults": {
+        "LOKI_IMAGE": "grafana/loki@sha256:d70e4659623f3e109af669cae76fe2a5dd5be54e2298fe8aed380d982fbc2500"
+      },
+      "runtime_source": {
+        "tag": "3.7.7",
+        "digest": "sha256:d70e4659623f3e109af669cae76fe2a5dd5be54e2298fe8aed380d982fbc2500",
+        "source": "https://hub.docker.com/v2/repositories/grafana/loki/tags/3.7.7",
+        "repository": "grafana/loki",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "fluent-bit",
+      "title": "Fluent Bit",
+      "description": "Fluent Bit private monitoring or database administration service.",
+      "depends_on": [
+        "loki"
+      ],
+      "ports": [
+        2020
+      ],
+      "secret_keys": [
+        "FLUENT_BIT_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:2020",
+      "resources": {
+        "memory_mb": 256,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/fluent-bit.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:2020/api/v1/health"
+      },
+      "image_repository": "fluent/fluent-bit",
+      "secret_defaults": {
+        "FLUENT_BIT_IMAGE": "fluent/fluent-bit@sha256:d792375ca8e53be72fc25716c28f291f32c6fc6f4f31d12d0d14bc78cefe9226"
+      },
+      "runtime_source": {
+        "tag": "5.1.2",
+        "digest": "sha256:d792375ca8e53be72fc25716c28f291f32c6fc6f4f31d12d0d14bc78cefe9226",
+        "source": "https://hub.docker.com/v2/repositories/fluent/fluent-bit/tags/5.1.2",
+        "repository": "fluent/fluent-bit",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "cadvisor",
+      "title": "cAdvisor",
+      "description": "cAdvisor private monitoring or database administration service.",
+      "security": {
+        "risk": "host-root-equivalent",
+        "elevated_privileges": true,
+        "operator_warning": "Privileged container with host filesystem, Docker API and device access. A read-only socket mount does not restrict Docker API operations."
+      },
+      "depends_on": [],
+      "ports": [
+        8085
+      ],
+      "secret_keys": [
+        "CADVISOR_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8085",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/cadvisor.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8085/healthz"
+      },
+      "image_repository": "ghcr.io/google/cadvisor",
+      "secret_defaults": {
+        "CADVISOR_IMAGE": "ghcr.io/google/cadvisor@sha256:e02855207ec07bb45ee41f720645945251f093f24c28f8c29cf718490f784922"
+      },
+      "runtime_source": {
+        "tag": "0.55.1",
+        "digest": "sha256:e02855207ec07bb45ee41f720645945251f093f24c28f8c29cf718490f784922",
+        "source": "https://ghcr.io/v2/google/cadvisor/manifests/0.55.1",
+        "repository": "ghcr.io/google/cadvisor",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "unknown",
+          "unknown"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "node-exporter",
+      "title": "Node Exporter",
+      "description": "Node Exporter private monitoring or database administration service.",
+      "depends_on": [],
+      "ports": [
+        9100
+      ],
+      "secret_keys": [
+        "NODE_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9100",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/node-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9100/metrics"
+      },
+      "image_repository": "prom/node-exporter",
+      "secret_defaults": {
+        "NODE_EXPORTER_IMAGE": "prom/node-exporter@sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0"
+      },
+      "runtime_source": {
+        "tag": "v1.12.1",
+        "digest": "sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0",
+        "source": "https://hub.docker.com/v2/repositories/prom/node-exporter/tags/v1.12.1",
+        "repository": "prom/node-exporter",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "arm64",
+          "s390x",
+          "arm",
+          "riscv64"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "pg-exporter",
+      "title": "PostgreSQL Exporter",
+      "description": "PostgreSQL Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "postgresql"
+      ],
+      "ports": [
+        9187
+      ],
+      "secret_keys": [
+        "PG_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9187",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/pg-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9187/metrics",
+        "body_pattern": "^pg_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "prometheuscommunity/postgres-exporter",
+      "secret_defaults": {
+        "PG_EXPORTER_IMAGE": "prometheuscommunity/postgres-exporter@sha256:ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e"
+      },
+      "runtime_source": {
+        "tag": "v0.20.1",
+        "digest": "sha256:ac5ec343104fae0e2d84a27bb8d69b38430a11910c5382cad85d478d2bab713e",
+        "source": "https://hub.docker.com/v2/repositories/prometheuscommunity/postgres-exporter/tags/v0.20.1",
+        "repository": "prometheuscommunity/postgres-exporter",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "redis-exporter",
+      "title": "Redis Exporter",
+      "description": "Redis Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "redis"
+      ],
+      "ports": [
+        9121
+      ],
+      "secret_keys": [
+        "REDIS_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9121",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/redis-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9121/metrics",
+        "body_pattern": "^redis_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "oliver006/redis_exporter",
+      "secret_defaults": {
+        "REDIS_EXPORTER_IMAGE": "oliver006/redis_exporter@sha256:c67a432dba6b4ae30f471e3c77cf14a289133bbeeb89abb0bb03e6092efb2836"
+      },
+      "runtime_source": {
+        "tag": "v1.91.1",
+        "digest": "sha256:c67a432dba6b4ae30f471e3c77cf14a289133bbeeb89abb0bb03e6092efb2836",
+        "source": "https://hub.docker.com/v2/repositories/oliver006/redis_exporter/tags/v1.91.1",
+        "repository": "oliver006/redis_exporter",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "mongo-exporter",
+      "title": "MongoDB Exporter",
+      "description": "MongoDB Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "mongodb"
+      ],
+      "ports": [
+        9216
+      ],
+      "secret_keys": [
+        "MONGO_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9216",
+      "resources": {
+        "memory_mb": 256,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/mongo-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9216/metrics",
+        "body_pattern": "^mongodb_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "percona/mongodb_exporter",
+      "secret_defaults": {
+        "MONGO_EXPORTER_IMAGE": "percona/mongodb_exporter@sha256:0214e482b2cd4b1849f9f4dcef90d328a99ba3727dd1103e7da48b42060bcec1"
+      },
+      "runtime_source": {
+        "tag": "0.53.0",
+        "digest": "sha256:0214e482b2cd4b1849f9f4dcef90d328a99ba3727dd1103e7da48b42060bcec1",
+        "source": "https://hub.docker.com/v2/repositories/percona/mongodb_exporter/tags/0.53.0",
+        "repository": "percona/mongodb_exporter",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "mysql-exporter",
+      "title": "MySQL Exporter",
+      "description": "MySQL Exporter private monitoring or database administration service.",
+      "depends_on": [
+        "mysql"
+      ],
+      "ports": [
+        9104
+      ],
+      "secret_keys": [
+        "MYSQL_EXPORTER_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:9104",
+      "resources": {
+        "memory_mb": 128,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/mysql-exporter.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:9104/metrics",
+        "body_pattern": "^mysql_up(?:\\{[^}\\r\\n]*\\})?[ \\t]+1(?:\\.0+)?[ \\t]*$"
+      },
+      "image_repository": "prom/mysqld-exporter",
+      "secret_defaults": {
+        "MYSQL_EXPORTER_IMAGE": "prom/mysqld-exporter@sha256:abed8dac117b4ae5b70757f988e44795935b9a72c3b58d720c67ba688f8cb79e"
+      },
+      "runtime_source": {
+        "tag": "v0.20.0",
+        "digest": "sha256:abed8dac117b4ae5b70757f988e44795935b9a72c3b58d720c67ba688f8cb79e",
+        "source": "https://hub.docker.com/v2/repositories/prom/mysqld-exporter/tags/v0.20.0",
+        "repository": "prom/mysqld-exporter",
+        "architectures": [
+          "amd64",
+          "arm64",
+          "arm"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "pgadmin",
+      "title": "pgAdmin",
+      "description": "pgAdmin private monitoring or database administration service.",
+      "depends_on": [
+        "postgresql"
+      ],
+      "ports": [
+        5050
+      ],
+      "secret_keys": [
+        "PGADMIN_IMAGE",
+        "PGADMIN_DEFAULT_PASSWORD",
+        "PGADMIN_DEFAULT_EMAIL"
+      ],
+      "generated_secrets": [
+        "PGADMIN_DEFAULT_PASSWORD"
+      ],
+      "required_secrets": [
+        "PGADMIN_DEFAULT_EMAIL"
+      ],
+      "endpoint": "http://127.0.0.1:5050",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/pgadmin.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "startup_timeout_seconds": 600,
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:5050/misc/ping"
+      },
+      "image_repository": "dpage/pgadmin4",
+      "secret_defaults": {
+        "PGADMIN_IMAGE": "dpage/pgadmin4@sha256:2f4ce946ddf8360680d7eff4eaba1d91859eb6b4003e6623bad5c63a322c2f4d"
+      },
+      "runtime_source": {
+        "tag": "9.17",
+        "digest": "sha256:2f4ce946ddf8360680d7eff4eaba1d91859eb6b4003e6623bad5c63a322c2f4d",
+        "source": "https://hub.docker.com/v2/repositories/dpage/pgadmin4/tags/9.17",
+        "repository": "dpage/pgadmin4",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "redisinsight",
+      "title": "Redis Insight",
+      "description": "Redis Insight private monitoring or database administration service.",
+      "depends_on": [
+        "redis"
+      ],
+      "ports": [
+        5540
+      ],
+      "secret_keys": [
+        "REDISINSIGHT_IMAGE",
+        "RI_ENCRYPTION_KEY",
+        "REDISINSIGHT_PROXY_IMAGE",
+        "REDISINSIGHT_PROXY_PASSWORD",
+        "RI_ACCEPT_TERMS_AND_CONDITIONS"
+      ],
+      "generated_secrets": [
+        "RI_ENCRYPTION_KEY",
+        "REDISINSIGHT_PROXY_PASSWORD"
+      ],
+      "required_secrets": [
+        "RI_ACCEPT_TERMS_AND_CONDITIONS"
+      ],
+      "endpoint": "http://127.0.0.1:5540",
+      "resources": {
+        "memory_mb": 576,
+        "disk_gb": 2,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/redisinsight.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "recreate_on_apply": true,
+      "verify": {
+        "type": "command",
+        "command": ["python3", "@ROOT@/stacks/observability/verify-redisinsight.py"]
+      },
+      "image_repository": "redis/redisinsight",
+      "security": {
+        "authentication": "Gateway Basic authentication on every HTTP method and path",
+        "backend_network": "Gateway network namespace with backend bound only to namespace loopback; bridge-IP reachability rejected by readiness check",
+        "credential_key": "REDISINSIGHT_PROXY_PASSWORD",
+        "username": "admin"
+      },
+      "secret_defaults": {
+        "REDISINSIGHT_IMAGE": "redis/redisinsight@sha256:b5e19ee240abef6edb435871b90ff8a210995422e8e018ab61c0339d318a1f84",
+        "REDISINSIGHT_PROXY_IMAGE": "haproxy@sha256:6343ce34a132a5dceaa24767d739df2bd519f8f7c1079ae39e4821334e8eb42e"
+      },
+      "runtime_source": {
+        "tag": "3.8.0",
+        "digest": "sha256:b5e19ee240abef6edb435871b90ff8a210995422e8e018ab61c0339d318a1f84",
+        "source": "https://hub.docker.com/v2/repositories/redis/redisinsight/tags/3.8.0",
+        "repository": "redis/redisinsight",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "phpmyadmin",
+      "title": "phpMyAdmin",
+      "description": "phpMyAdmin private monitoring or database administration service.",
+      "depends_on": [
+        "mysql"
+      ],
+      "ports": [
+        8086
+      ],
+      "secret_keys": [
+        "PHPMYADMIN_IMAGE"
+      ],
+      "generated_secrets": [],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8086",
+      "resources": {
+        "memory_mb": 512,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/phpmyadmin.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8086/"
+      },
+      "image_repository": "phpmyadmin",
+      "secret_defaults": {
+        "PHPMYADMIN_IMAGE": "phpmyadmin@sha256:3a8a8d6b5289091f959ba0293f21163b3a2fc5741991a53de70b3497fe8d31db"
+      },
+      "runtime_source": {
+        "tag": "5.2.3-apache",
+        "digest": "sha256:3a8a8d6b5289091f959ba0293f21163b3a2fc5741991a53de70b3497fe8d31db",
+        "source": "https://hub.docker.com/v2/repositories/library/phpmyadmin/tags/5.2.3-apache",
+        "repository": "library/phpmyadmin",
+        "architectures": [
+          "amd64",
+          "ppc64le",
+          "386",
+          "s390x",
+          "arm",
+          "arm64",
+          "arm",
+          "riscv64"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    },
+    {
+      "id": "mongo-express",
+      "title": "Mongo Express",
+      "description": "Mongo Express private monitoring or database administration service.",
+      "depends_on": [
+        "mongodb"
+      ],
+      "ports": [
+        8087
+      ],
+      "secret_keys": [
+        "MONGO_EXPRESS_IMAGE",
+        "ME_CONFIG_BASICAUTH_PASSWORD",
+        "ME_CONFIG_SITE_COOKIESECRET",
+        "ME_CONFIG_SITE_SESSIONSECRET",
+        "ME_CONFIG_BASICAUTH_USERNAME"
+      ],
+      "generated_secrets": [
+        "ME_CONFIG_BASICAUTH_PASSWORD",
+        "ME_CONFIG_SITE_COOKIESECRET",
+        "ME_CONFIG_SITE_SESSIONSECRET"
+      ],
+      "required_secrets": [],
+      "endpoint": "http://127.0.0.1:8087",
+      "resources": {
+        "memory_mb": 256,
+        "disk_gb": 1,
+        "cpu_cores": 1
+      },
+      "kind": "compose",
+      "recipe": "stacks/observability/mongo-express.compose.json",
+      "prepare": "stacks/observability/prepare.py",
+      "verify": {
+        "type": "http",
+        "url": "http://127.0.0.1:8087/status"
+      },
+      "image_repository": "mongo-express",
+      "secret_defaults": {
+        "ME_CONFIG_BASICAUTH_USERNAME": "admin",
+        "MONGO_EXPRESS_IMAGE": "mongo-express@sha256:1aae0077525133249133d42980ba23998712a1077e02ac0ac295b50a7a79d550"
+      },
+      "runtime_source": {
+        "tag": "1.0.2-20-alpine3.19",
+        "digest": "sha256:1aae0077525133249133d42980ba23998712a1077e02ac0ac295b50a7a79d550",
+        "source": "https://hub.docker.com/v2/repositories/library/mongo-express/tags/1.0.2-20-alpine3.19",
+        "repository": "library/mongo-express",
+        "architectures": [
+          "amd64",
+          "arm64"
+        ],
+        "retrieved_at": "2026-09-14"
+      }
+    }
+  ]
+}
